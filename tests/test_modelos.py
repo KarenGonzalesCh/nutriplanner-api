@@ -4,7 +4,10 @@ from sqlalchemy import create_engine, inspect
 from app.db.base import Base
 from app.models.cuenta import Cuenta
 from app.models.perfil_alimentario import PerfilAlimentario
-
+from app.models.categoria_alimento import CategoriaAlimento
+from app.models.ingrediente import Ingrediente
+from app.models.alergia import Alergia
+from app.models.alergia_ingrediente import AlergiaIngrediente
 
 def test_creacion_tablas():
     """Verifica que se creen las tablas iniciales."""
@@ -198,5 +201,113 @@ def test_no_permitir_ingredientes_duplicados():
                 session.commit()
 
             session.rollback()
+    finally:
+        engine.dispose()
+
+
+
+def test_alergia_con_varios_ingredientes():
+    """Verifica la relación muchos a muchos entre alergias e ingredientes."""
+
+    from sqlalchemy.orm import Session
+
+    from app.models.categoria_alimento import CategoriaAlimento
+    from app.models.ingrediente import Ingrediente
+    from app.models.alergia import Alergia
+    from app.models.alergia_ingrediente import AlergiaIngrediente
+
+    engine = create_engine("sqlite:///:memory:")
+
+    try:
+        Base.metadata.create_all(engine)
+
+        with Session(engine) as session:
+            categoria = CategoriaAlimento(nombre="Lacteos")
+
+            leche = Ingrediente(nombre="Leche", categoria=categoria)
+            queso = Ingrediente(nombre="Queso", categoria=categoria)
+
+            alergia = Alergia(nombre="Alergia a la leche")
+            alergia.ingredientes = [leche, queso]
+
+            session.add(alergia)
+            session.commit()
+
+            alergia_id = alergia.id
+
+        with Session(engine) as session:
+            alergia_guardada = session.get(Alergia, alergia_id)
+
+            assert alergia_guardada is not None
+            assert len(alergia_guardada.ingredientes) == 2
+
+            nombres = {
+                ingrediente.nombre
+                for ingrediente in alergia_guardada.ingredientes
+            }
+
+            assert nombres == {"Leche", "Queso"}
+
+            for ingrediente in alergia_guardada.ingredientes:
+                assert alergia_guardada in ingrediente.alergias
+
+    finally:
+        engine.dispose()
+
+
+
+def test_perfil_con_varias_alergias():
+    """Verifica que un perfil pueda tener varias alergias."""
+
+    import app.models
+    from sqlalchemy.orm import Session
+
+    engine = create_engine("sqlite:///:memory:")
+
+    try:
+        Base.metadata.create_all(engine)
+
+        with Session(engine) as session:
+            cuenta = Cuenta(
+                nombre_usuario="usuario_alergias",
+                correo="alergias@example.com",
+                password_hash="hash_de_prueba"
+            )
+
+            perfil = PerfilAlimentario(cuenta=cuenta)
+
+            alergia_leche = Alergia(nombre="Alergia a la leche")
+            alergia_huevo = Alergia(nombre="Alergia al huevo")
+
+            perfil.alergias = [alergia_leche, alergia_huevo]
+
+            session.add(perfil)
+            session.commit()
+
+            perfil_id = perfil.id
+
+        # Abrimos otra sesión para verificar los datos guardados.
+        with Session(engine) as session:
+            perfil_guardado = session.get(
+                PerfilAlimentario, perfil_id
+            )
+
+            assert perfil_guardado is not None
+            assert len(perfil_guardado.alergias) == 2
+
+            nombres = {
+                alergia.nombre
+                for alergia in perfil_guardado.alergias
+            }
+
+            assert nombres == {
+                "Alergia a la leche",
+                "Alergia al huevo"
+            }
+
+            # Verificamos también la relación inversa.
+            for alergia in perfil_guardado.alergias:
+                assert perfil_guardado in alergia.perfiles_alimentarios
+
     finally:
         engine.dispose()

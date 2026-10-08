@@ -29,3 +29,11 @@ class Ingrediente(Base):
         "CategoriaAlimento",
         back_populates="ingredientes"
     )
+
+    
+    alergias: Mapped[list["Alergia"]] = relationship(
+        "Alergia",
+        secondary="alergia_ingrediente",
+        back_populates="ingredientes"
+    )
+

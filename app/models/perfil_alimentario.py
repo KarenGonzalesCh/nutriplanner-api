@@ -29,3 +29,11 @@ class PerfilAlimentario(Base):
     )
 
     cuenta = relationship("Cuenta", back_populates="perfil_alimentario")
+
+    
+    alergias: Mapped[list["Alergia"]] = relationship(
+        "Alergia",
+        secondary="perfil_alergia",
+        back_populates="perfiles_alimentarios"
+    )
+
