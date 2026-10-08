@@ -109,3 +109,94 @@ def test_cuenta_no_puede_tener_dos_perfiles():
             session.rollback()
     finally:
         engine.dispose()
+
+
+def test_categoria_con_ingredientes():
+    """Verifica que una categoría pueda tener varios ingredientes."""
+
+    from sqlalchemy.orm import Session
+
+    from app.models.categoria_alimento import CategoriaAlimento
+    from app.models.ingrediente import Ingrediente
+
+    engine = create_engine("sqlite:///:memory:")
+
+    try:
+        Base.metadata.create_all(engine)
+
+        with Session(engine) as session:
+            categoria = CategoriaAlimento(nombre="Verduras")
+
+            categoria.ingredientes = [
+                Ingrediente(nombre="Zanahoria"),
+                Ingrediente(nombre="Tomate"),
+                Ingrediente(nombre="Cebolla"),
+            ]
+
+            session.add(categoria)
+            session.commit()
+
+            categoria_id = categoria.id
+
+        with Session(engine) as session:
+            categoria_guardada = session.get(
+                CategoriaAlimento, categoria_id
+            )
+
+            assert categoria_guardada is not None
+            assert categoria_guardada.nombre == "Verduras"
+            assert len(categoria_guardada.ingredientes) == 3
+
+            nombres = {
+                ingrediente.nombre
+                for ingrediente in categoria_guardada.ingredientes
+            }
+
+            assert nombres == {"Zanahoria", "Tomate", "Cebolla"}
+
+            for ingrediente in categoria_guardada.ingredientes:
+                assert ingrediente.categoria_id == categoria_id
+
+    finally:
+        engine.dispose()
+
+
+
+def test_no_permitir_ingredientes_duplicados():
+    """Verifica que no existan ingredientes con el mismo nombre."""
+
+    import pytest
+    from sqlalchemy.exc import IntegrityError
+    from sqlalchemy.orm import Session
+
+    from app.models.categoria_alimento import CategoriaAlimento
+    from app.models.ingrediente import Ingrediente
+
+    engine = create_engine("sqlite:///:memory:")
+
+    try:
+        Base.metadata.create_all(engine)
+
+        with Session(engine) as session:
+            categoria = CategoriaAlimento(nombre="Verduras")
+            session.add(categoria)
+            session.flush()
+
+            ingrediente_1 = Ingrediente(
+                nombre="Tomate",
+                categoria_id=categoria.id
+            )
+
+            ingrediente_2 = Ingrediente(
+                nombre="Tomate",
+                categoria_id=categoria.id
+            )
+
+            session.add_all([ingrediente_1, ingrediente_2])
+
+            with pytest.raises(IntegrityError):
+                session.commit()
+
+            session.rollback()
+    finally:
+        engine.dispose()
