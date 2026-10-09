@@ -37,3 +37,19 @@ class PerfilAlimentario(Base):
         back_populates="perfiles_alimentarios"
     )
 
+    
+    ingredientes_evitados: Mapped[list["Ingrediente"]] = relationship(
+        "Ingrediente",
+        secondary="perfil_ingrediente_evitado",
+        back_populates="perfiles_que_lo_evitan"
+    )
+
+    
+    categorias_evitadas: Mapped[list["CategoriaAlimento"]] = relationship(
+        "CategoriaAlimento",
+        secondary="perfil_categoria_evitada",
+        back_populates="perfiles_que_la_evitan"
+    )
+
+
+

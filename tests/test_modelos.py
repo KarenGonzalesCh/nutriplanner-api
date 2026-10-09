@@ -311,3 +311,306 @@ def test_perfil_con_varias_alergias():
 
     finally:
         engine.dispose()
+
+
+
+
+def test_perfil_con_ingredientes_evitados():
+    """Verifica que un perfil pueda guardar varios ingredientes evitados."""
+
+    import app.models
+    from sqlalchemy.orm import Session
+
+    engine = create_engine("sqlite:///:memory:")
+
+    try:
+        Base.metadata.create_all(engine)
+
+        with Session(engine) as session:
+            cuenta = Cuenta(
+                nombre_usuario="usuario_preferencias",
+                correo="preferencias@example.com",
+                password_hash="hash_de_prueba"
+            )
+
+            perfil = PerfilAlimentario(cuenta=cuenta)
+
+            categoria = CategoriaAlimento(nombre="Verduras")
+
+            cebolla = Ingrediente(nombre="Cebolla", categoria=categoria)
+            ajo = Ingrediente(nombre="Ajo", categoria=categoria)
+
+            perfil.ingredientes_evitados = [cebolla, ajo]
+
+            session.add(perfil)
+            session.commit()
+
+            perfil_id = perfil.id
+
+        # Verificamos los datos desde una nueva sesión.
+        with Session(engine) as session:
+            perfil_guardado = session.get(PerfilAlimentario, perfil_id)
+
+            assert perfil_guardado is not None
+            assert len(perfil_guardado.ingredientes_evitados) == 2
+
+            nombres = {
+                ingrediente.nombre
+                for ingrediente in perfil_guardado.ingredientes_evitados
+            }
+
+            assert nombres == {"Cebolla", "Ajo"}
+
+            # Comprobamos también la relación inversa.
+            for ingrediente in perfil_guardado.ingredientes_evitados:
+                assert perfil_guardado in ingrediente.perfiles_que_lo_evitan
+
+    finally:
+        engine.dispose()
+
+
+
+def test_perfil_con_categorias_evitadas():
+    """Verifica que un perfil pueda guardar categorías de alimentos evitadas."""
+
+    import app.models
+    from sqlalchemy.orm import Session
+
+    engine = create_engine("sqlite:///:memory:")
+
+    try:
+        Base.metadata.create_all(engine)
+
+        with Session(engine) as session:
+            cuenta = Cuenta(
+                nombre_usuario="usuario_categorias",
+                correo="categorias@example.com",
+                password_hash="hash_de_prueba"
+            )
+
+            perfil = PerfilAlimentario(cuenta=cuenta)
+
+            lacteos = CategoriaAlimento(nombre="Lacteos")
+            frutos_secos = CategoriaAlimento(nombre="Frutos secos")
+
+            perfil.categorias_evitadas = [lacteos, frutos_secos]
+
+            session.add(perfil)
+            session.commit()
+
+            perfil_id = perfil.id
+
+        # Abrimos una nueva sesión para comprobar la persistencia.
+        with Session(engine) as session:
+            perfil_guardado = session.get(PerfilAlimentario, perfil_id)
+
+            assert perfil_guardado is not None
+            assert len(perfil_guardado.categorias_evitadas) == 2
+
+            nombres = {
+                categoria.nombre
+                for categoria in perfil_guardado.categorias_evitadas
+            }
+
+            assert nombres == {"Lacteos", "Frutos secos"}
+
+            # Comprobamos la relación inversa.
+            for categoria in perfil_guardado.categorias_evitadas:
+                assert perfil_guardado in categoria.perfiles_que_la_evitan
+
+    finally:
+        engine.dispose()
+
+
+
+def test_receta_con_varios_tipos_comida():
+    """Verifica que una receta pueda pertenecer a varios tipos de comida."""
+
+    import app.models
+    from sqlalchemy.orm import Session
+
+    from app.core.enums import NivelDificultad, TipoComida
+    from app.models.receta import Receta
+    from app.models.receta_tipo_comida import RecetaTipoComida
+
+    engine = create_engine("sqlite:///:memory:")
+
+    try:
+        Base.metadata.create_all(engine)
+
+        with Session(engine) as session:
+            receta = Receta(
+                nombre="Tostadas con palta",
+                pasos="Tostar el pan y agregar la palta.",
+                tiempo_preparacion=10,
+                dificultad=NivelDificultad.PRINCIPIANTE,
+                info_nutricional=None,
+                activa=True
+            )
+
+            receta.tipos_comida = [
+                RecetaTipoComida(tipo_comida=TipoComida.DESAYUNO),
+                RecetaTipoComida(tipo_comida=TipoComida.MERIENDA)
+            ]
+
+            session.add(receta)
+            session.commit()
+
+            receta_id = receta.id
+
+        # Abrimos otra sesión para verificar la persistencia.
+        with Session(engine) as session:
+            receta_guardada = session.get(Receta, receta_id)
+
+            assert receta_guardada is not None
+            assert receta_guardada.nombre == "Tostadas con palta"
+            assert len(receta_guardada.tipos_comida) == 2
+
+            tipos = {
+                asociacion.tipo_comida
+                for asociacion in receta_guardada.tipos_comida
+            }
+
+            assert tipos == {
+                TipoComida.DESAYUNO,
+                TipoComida.MERIENDA
+            }
+
+            # Verificamos la relación inversa.
+            for asociacion in receta_guardada.tipos_comida:
+                assert asociacion.receta == receta_guardada
+
+    finally:
+        engine.dispose()
+
+
+
+def test_receta_con_ingredientes_y_cantidades():
+    """Verifica que una receta conserve sus ingredientes y cantidades."""
+
+    import app.models
+    from sqlalchemy.orm import Session
+
+    from app.core.enums import NivelDificultad
+    from app.models.receta import Receta
+    from app.models.receta_ingrediente import RecetaIngrediente
+
+    engine = create_engine("sqlite:///:memory:")
+
+    try:
+        Base.metadata.create_all(engine)
+
+        with Session(engine) as session:
+            categoria = CategoriaAlimento(nombre="Vegetales")
+
+            palta = Ingrediente(nombre="Palta", categoria=categoria)
+            tomate = Ingrediente(nombre="Tomate", categoria=categoria)
+
+            receta = Receta(
+                nombre="Ensalada de palta",
+                pasos="Cortar y mezclar los ingredientes.",
+                tiempo_preparacion=15,
+                dificultad=NivelDificultad.PRINCIPIANTE,
+                activa=True
+            )
+
+            receta.ingredientes = [
+                RecetaIngrediente(
+                    ingrediente=palta,
+                    cantidad=1.0,
+                    unidad="unidad"
+                ),
+                RecetaIngrediente(
+                    ingrediente=tomate,
+                    cantidad=2.0,
+                    unidad="unidades"
+                )
+            ]
+
+            session.add(receta)
+            session.commit()
+
+            receta_id = receta.id
+
+        # Consultamos los datos desde otra sesión.
+        with Session(engine) as session:
+            receta_guardada = session.get(Receta, receta_id)
+
+            assert receta_guardada is not None
+            assert len(receta_guardada.ingredientes) == 2
+
+            ingredientes = {
+                asociacion.ingrediente.nombre: (
+                    asociacion.cantidad,
+                    asociacion.unidad
+                )
+                for asociacion in receta_guardada.ingredientes
+            }
+
+            assert ingredientes == {
+                "Palta": (1.0, "unidad"),
+                "Tomate": (2.0, "unidades")
+            }
+
+            # Comprobamos las relaciones inversas.
+            for asociacion in receta_guardada.ingredientes:
+                assert asociacion.receta == receta_guardada
+                assert asociacion in asociacion.ingrediente.recetas_ingrediente
+
+    finally:
+        engine.dispose()
+
+
+
+def test_no_permitir_ingrediente_duplicado_en_receta():
+    """Verifica que una receta no pueda repetir el mismo ingrediente."""
+
+    import app.models
+    import pytest
+
+    from sqlalchemy.exc import IntegrityError
+    from sqlalchemy.orm import Session
+
+    from app.core.enums import NivelDificultad
+    from app.models.receta import Receta
+    from app.models.receta_ingrediente import RecetaIngrediente
+
+    engine = create_engine("sqlite:///:memory:")
+
+    try:
+        Base.metadata.create_all(engine)
+
+        with Session(engine) as session:
+            categoria = CategoriaAlimento(nombre="Verduras")
+            tomate = Ingrediente(nombre="Tomate", categoria=categoria)
+
+            receta = Receta(
+                nombre="Ensalada de tomate",
+                pasos="Cortar el tomate.",
+                tiempo_preparacion=10,
+                dificultad=NivelDificultad.PRINCIPIANTE,
+                activa=True
+            )
+
+            receta.ingredientes = [
+                RecetaIngrediente(
+                    ingrediente=tomate,
+                    cantidad=100.0,
+                    unidad="gramos"
+                ),
+                RecetaIngrediente(
+                    ingrediente=tomate,
+                    cantidad=200.0,
+                    unidad="gramos"
+                )
+            ]
+
+            session.add(receta)
+
+            with pytest.raises(IntegrityError):
+                session.commit()
+
+            session.rollback()
+
+    finally:
+        engine.dispose()

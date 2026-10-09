@@ -1,0 +1,216 @@
+@startuml NutriPlanner_Clases
+' Pegar en https://www.plantuml.com/plantuml  (o en el plugin de PlantUML de tu IDE)
+
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam defaultFontName Helvetica
+skinparam ArrowColor #555555
+skinparam class {
+  BackgroundColor #FFFFFF
+  BorderColor #444444
+  BackgroundColor<<cuenta>> #EEEDFE
+  BackgroundColor<<catalogo>> #E1F5EE
+  BackgroundColor<<menu>> #FAEEDA
+  BackgroundColor<<interaccion>> #FBEAF0
+}
+skinparam enum {
+  BackgroundColor #F1EFE8
+  BorderColor #444444
+}
+
+' ------------------------------------------------------------ Enums
+
+enum Rol {
+  USUARIO
+  MODERADOR
+}
+
+enum NivelDificultad {
+  PRINCIPIANTE
+  INTERMEDIO
+  AVANZADO
+}
+
+enum TipoComida {
+  DESAYUNO
+  ALMUERZO
+  MERIENDA
+  CENA
+}
+
+enum EstadoReporte {
+  PENDIENTE
+  CERRADO
+  ACEPTADO
+}
+
+' ------------------------------------------------------------ Cuenta y perfil
+
+class Cuenta <<cuenta>> {
+  id: Long
+  email: String
+  nombreUsuario: String
+  passwordHash: String
+  rol: Rol
+}
+
+class Usuario <<cuenta>> {
+  registrar()
+  autenticar()
+  eliminarCuenta()
+}
+
+class Moderador <<cuenta>> {
+  cerrarReporte()
+  aceptarReporte()
+}
+
+class PerfilAlimentario <<cuenta>> {
+  nivelCulinario: NivelDificultad
+  esRestringido(ingrediente): bool
+}
+
+' ------------------------------------------------------------ Catalogo
+
+class Alergia <<catalogo>> {
+  id: Long
+  nombre: String
+}
+
+class CategoriaAlimento <<catalogo>> {
+  id: Long
+  nombre: String
+}
+
+class Ingrediente <<catalogo>> {
+  id: Long
+  nombre: String
+}
+
+class Receta <<catalogo>> {
+  id: Long
+  nombre: String
+  pasos: String
+  tiempoPreparacion: int
+  dificultad: NivelDificultad
+  infoNutricional: String
+  activa: bool
+  promedioCalificacion(): float
+}
+
+class RecetaIngrediente <<catalogo>> {
+  cantidad: float
+  unidad: String
+}
+
+class AlternativaIngrediente <<catalogo>> {
+  id: Long
+}
+
+' ------------------------------------------------------------ Menus
+
+class Menu <<menu>> {
+  id: Long
+  nombre: String
+  fechaCreacion: Date
+  cantidadDias: int
+  guardado: bool
+  generar()
+  reemplazarReceta()
+  guardar()
+  reutilizar()
+}
+
+class MenuComida <<menu>> {
+  dia: int
+  tipoComida: TipoComida
+  /estaDisponible(): bool
+  /requiereSustitucion(): bool
+}
+
+class SustitucionMenu <<menu>> {
+  id: Long
+}
+
+' ------------------------------------------------------------ Interaccion y moderacion
+
+class Calificacion <<interaccion>> {
+  puntuacion: int {1..5}
+  fecha: Date
+}
+
+class Reporte <<interaccion>> {
+  id: Long
+  comentario: String
+  estado: EstadoReporte
+  fecha: Date
+}
+
+class MotivoReporte <<interaccion>> {
+  id: Long
+  descripcion: String
+}
+
+' ------------------------------------------------------------ Relaciones
+
+' Herencia
+Cuenta <|-- Usuario
+Cuenta <|-- Moderador
+
+' Perfil y restricciones
+Usuario "1" *-- "1" PerfilAlimentario
+PerfilAlimentario "*" --> "*" Alergia : declara
+PerfilAlimentario "*" --> "*" Ingrediente : evita
+PerfilAlimentario "*" --> "*" CategoriaAlimento : evita
+Alergia "1" --> "*" Ingrediente : restringe
+CategoriaAlimento "1" o-- "*" Ingrediente
+
+' Recetas
+Receta "1" *-- "*" RecetaIngrediente
+RecetaIngrediente "*" --> "1" Ingrediente
+RecetaIngrediente "1" *-- "*" AlternativaIngrediente
+AlternativaIngrediente "*" --> "1" Ingrediente : sustituto
+
+' Menus
+Usuario "1" --> "*" Menu : guarda
+Menu "*" --> "0..1" Menu : reutiliza de
+Menu "1" *-- "*" MenuComida
+MenuComida "*" --> "1" Receta
+MenuComida "1" *-- "*" SustitucionMenu
+SustitucionMenu "*" --> "1" AlternativaIngrediente : elegida
+SustitucionMenu "*" --> "1" RecetaIngrediente : sustituye
+
+' Interaccion con recetas
+Usuario "1" --> "*" Calificacion : otorga
+Calificacion "*" --> "1" Receta
+Usuario "*" --> "*" Receta : favoritas
+Usuario "*" --> "*" Receta : excluidas (tiene prioridad)
+
+' Reportes
+Usuario "1" --> "*" Reporte : realiza
+Reporte "*" --> "1" Receta
+Reporte "*" --> "1" MotivoReporte
+Moderador "1" --> "*" Reporte : resuelve
+
+' Dependencias de enums
+Cuenta ..> Rol
+Receta ..> NivelDificultad
+MenuComida ..> TipoComida
+Reporte ..> EstadoReporte
+
+' ------------------------------------------------------------ Notas
+
+note as N1
+  <b>Notas</b>
+  Cuenta es una unica entidad persistente; Usuario y Moderador
+  son roles (atributo rol), no tablas separadas.
+  Los miembros con "/" son derivados: la disponibilidad y la
+  sustitucion pendiente de un menu se calculan, no se almacenan.
+  Restricciones: una Calificacion por (Usuario, Receta);
+  un solo Reporte PENDIENTE por (Usuario, Receta).
+  Calificacion y Reporte se conservan anonimos al eliminar
+  la cuenta (RN20).
+end note
+
+@enduml
+

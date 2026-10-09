@@ -5,3 +5,8 @@ from app.models.ingrediente import Ingrediente
 from app.models.alergia import Alergia
 from app.models.alergia_ingrediente import AlergiaIngrediente
 from app.models.perfil_alergia import PerfilAlergia
+from app.models.perfil_ingrediente_evitado import PerfilIngredienteEvitado
+from app.models.perfil_categoria_evitada import PerfilCategoriaEvitada
+from app.models.receta import Receta
+from app.models.receta_tipo_comida import RecetaTipoComida
+from app.models.receta_ingrediente import RecetaIngrediente
