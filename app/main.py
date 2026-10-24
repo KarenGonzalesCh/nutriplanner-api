@@ -5,6 +5,9 @@ from app.schemas.health import HealthResponse
 from app.api.routes.cuentas import router as cuentas_router
 from app.api.routes.auth import router as auth_router
 from app.api.routes.perfil_alimentario import router as perfil_router
+from app.api.routes.alergia import router as alergias_router
+from app.api.routes.categoria_alimento import router as categorias_router
+from app.api.routes.ingrediente import router as ingredientes_router
 
 app = FastAPI(
     title=settings.app_name,
@@ -25,3 +28,9 @@ app.include_router(cuentas_router)
 app.include_router(auth_router)
 
 app.include_router(perfil_router)
+
+app.include_router(alergias_router)
+
+app.include_router(categorias_router)
+
+app.include_router(ingredientes_router)
