@@ -1,6 +1,9 @@
 from fastapi import FastAPI
 
 from app.core.config import settings
+from app.schemas.health import HealthResponse
+from app.api.routes.cuentas import router as cuentas_router
+from app.api.routes.auth import router as auth_router
 
 app = FastAPI(
     title=settings.app_name,
@@ -14,3 +17,8 @@ app = FastAPI(
 def health() -> dict[str, str]:
     """Verifica que la API está en funcionamiento."""
     return {"status": "ok"}
+
+
+app.include_router(cuentas_router)
+
+app.include_router(auth_router)
