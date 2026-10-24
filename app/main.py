@@ -4,6 +4,7 @@ from app.core.config import settings
 from app.schemas.health import HealthResponse
 from app.api.routes.cuentas import router as cuentas_router
 from app.api.routes.auth import router as auth_router
+from app.api.routes.perfil_alimentario import router as perfil_router
 
 app = FastAPI(
     title=settings.app_name,
@@ -22,3 +23,5 @@ def health() -> dict[str, str]:
 app.include_router(cuentas_router)
 
 app.include_router(auth_router)
+
+app.include_router(perfil_router)
