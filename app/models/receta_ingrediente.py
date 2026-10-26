@@ -53,3 +53,8 @@ class RecetaIngrediente(Base):
     )
 
 
+
+    alternativas: Mapped[list["AlternativaIngrediente"]] = relationship(
+        "AlternativaIngrediente",
+        back_populates="receta_ingrediente"
+    )

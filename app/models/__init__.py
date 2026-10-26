@@ -10,3 +10,4 @@ from app.models.perfil_categoria_evitada import PerfilCategoriaEvitada
 from app.models.receta import Receta
 from app.models.receta_tipo_comida import RecetaTipoComida
 from app.models.receta_ingrediente import RecetaIngrediente
+from app.models.alternativa_ingrediente import AlternativaIngrediente

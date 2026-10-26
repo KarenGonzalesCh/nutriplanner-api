@@ -1,3 +1,5 @@
+from app.schemas.compatibilidad_receta import CompatibilidadRecetaResponse
+from app.services.detalle_compatibilidad import preparar_detalle_compatibilidad
 
 from sqlalchemy.orm import Session
 
@@ -91,3 +93,20 @@ class RecetaService:
             )
 
         return self._preparar_respuesta(receta)
+
+    def obtener_compatibilidad(
+        self,
+        cuenta_id: int,
+        receta_id: int,
+    ) -> CompatibilidadRecetaResponse:
+        """Consulta el estado y las alternativas de una receta."""
+
+        perfil = self._obtener_perfil(cuenta_id)
+        receta = self.repository.obtener_por_id(receta_id)
+
+        if receta is None:
+            raise RecetaNoEncontradaError(
+                "La receta no existe o no está disponible"
+            )
+
+        return preparar_detalle_compatibilidad(receta, perfil)

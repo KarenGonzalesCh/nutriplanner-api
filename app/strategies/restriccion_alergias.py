@@ -1,7 +1,7 @@
-
 from app.models.receta import Receta
 from app.models.perfil_alimentario import PerfilAlimentario
 from app.strategies.restriccion import RestriccionStrategy
+from app.services.compatibilidad_ingrediente import cumple_restriccion_alergias
 
 
 class RestriccionAlergiasStrategy(RestriccionStrategy):
@@ -12,16 +12,10 @@ class RestriccionAlergiasStrategy(RestriccionStrategy):
         receta: Receta,
         perfil: PerfilAlimentario,
     ) -> bool:
-
-        alergias_usuario = {
-            alergia.id for alergia in perfil.alergias
-        }
-
-        for receta_ingrediente in receta.ingredientes:
-            ingrediente = receta_ingrediente.ingrediente
-
-            for alergia in ingrediente.alergias:
-                if alergia.id in alergias_usuario:
-                    return False
-
-        return True
+        return all(
+            cumple_restriccion_alergias(
+                receta_ingrediente.ingrediente,
+                perfil
+            )
+            for receta_ingrediente in receta.ingredientes
+        )
