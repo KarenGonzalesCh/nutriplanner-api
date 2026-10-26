@@ -4,6 +4,8 @@ from sqlalchemy.orm import Session, selectinload
 
 from app.models.receta import Receta
 from app.models.receta_ingrediente import RecetaIngrediente
+from app.models.alternativa_ingrediente import AlternativaIngrediente
+from app.models.ingrediente import Ingrediente
 
 
 class RecetaRepository:
@@ -17,7 +19,12 @@ class RecetaRepository:
             .where(Receta.activa.is_(True))
             .options(
                 selectinload(Receta.ingredientes)
-                .selectinload(RecetaIngrediente.ingrediente),
+                .selectinload(RecetaIngrediente.ingrediente)
+                .selectinload(Ingrediente.alergias),
+                selectinload(Receta.ingredientes)
+                .selectinload(RecetaIngrediente.alternativas)
+                .selectinload(AlternativaIngrediente.ingrediente_alternativo)
+                .selectinload(Ingrediente.alergias),
                 selectinload(Receta.tipos_comida),
             )
             .order_by(Receta.nombre)
@@ -34,7 +41,12 @@ class RecetaRepository:
             )
             .options(
                 selectinload(Receta.ingredientes)
-                .selectinload(RecetaIngrediente.ingrediente),
+                .selectinload(RecetaIngrediente.ingrediente)
+                .selectinload(Ingrediente.alergias),
+                selectinload(Receta.ingredientes)
+                .selectinload(RecetaIngrediente.alternativas)
+                .selectinload(AlternativaIngrediente.ingrediente_alternativo)
+                .selectinload(Ingrediente.alergias),
                 selectinload(Receta.tipos_comida),
             )
         )

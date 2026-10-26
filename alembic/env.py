@@ -20,6 +20,7 @@ import app.models.perfil_ingrediente_evitado
 import app.models.receta
 import app.models.receta_ingrediente
 import app.models.receta_tipo_comida
+import app.models.alternativa_ingrediente
 
 
 config = context.config
