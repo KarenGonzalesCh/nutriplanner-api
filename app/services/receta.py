@@ -14,6 +14,7 @@ from app.schemas.receta import (
     RecetaResponse,
     RecetaIngredienteResponse,
 )
+from app.repositories.preferencias_receta import PreferenciasRecetaRepository
 
 
 class RecetaNoEncontradaError(Exception):
@@ -29,6 +30,7 @@ class RecetaService:
     def __init__(self, db: Session):
         self.repository = RecetaRepository(db)
         self.perfil_repository = PerfilAlimentarioRepository(db)
+        self.preferencias_repository = PreferenciasRecetaRepository(db)
         self.evaluador = crear_evaluador_restricciones()
 
     def _obtener_perfil(self, cuenta_id: int) -> PerfilAlimentario:
@@ -68,10 +70,17 @@ class RecetaService:
         perfil = self._obtener_perfil(cuenta_id)
         recetas = self.repository.listar()
 
+        excluidas = set(
+            self.preferencias_repository.listar_excluidas(cuenta_id)
+        )
+
         return [
             self._preparar_respuesta(receta)
             for receta in recetas
-            if self.evaluador.es_compatible(receta, perfil)
+            if (
+                receta.id not in excluidas
+                and self.evaluador.es_compatible(receta, perfil)
+            )
         ]
 
     def obtener_por_id(

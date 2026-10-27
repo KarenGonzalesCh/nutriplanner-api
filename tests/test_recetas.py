@@ -344,3 +344,30 @@ def test_detalle_receta_incompatible(client):
     )
 
     assert respuesta.status_code == HTTPStatus.NOT_FOUND
+
+def test_receta_excluida_no_aparece_en_catalogo(client):
+    test_client, engine = client
+    ids = cargar_recetas(engine)
+
+    headers = autenticar(test_client)
+    crear_perfil(test_client, headers)
+
+    receta_id = ids["receta_arroz"]
+
+    respuesta = test_client.post(
+        f"/recetas/{receta_id}/exclusion",
+        headers=headers,
+    )
+    assert respuesta.status_code == HTTPStatus.NO_CONTENT
+
+    listado = test_client.get(
+        "/recetas",
+        headers=headers,
+    )
+
+    assert listado.status_code == HTTPStatus.OK
+
+    recetas_ids = [receta["id"] for receta in listado.json()]
+
+    assert receta_id not in recetas_ids
+    assert ids["receta_leche"] in recetas_ids
