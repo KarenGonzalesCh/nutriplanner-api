@@ -4,6 +4,17 @@ from app.models.receta import Receta
 from app.models.perfil_alimentario import PerfilAlimentario
 from heapq import heappop, heappush
 
+from sqlalchemy.orm import Session
+
+from app.repositories.receta import RecetaRepository
+from app.repositories.perfil_alimentario import (
+    PerfilAlimentarioRepository,
+)
+
+from app.services.compatibilidad_receta import (
+    EstadoCompatibilidad,
+    evaluar_compatibilidad_receta,
+)
 
 # RN3: correspondencia entre nivel del usuario
 # y dificultad permitida para sugerencias automáticas.
@@ -65,6 +76,7 @@ def filtrar_candidatas_basicas(
 class CandidataMenu:
     receta_id: int
     tiene_conflicto_flexible: bool
+    requiere_sustituciones: bool = False
 
 
 def seleccionar_candidata(
@@ -101,6 +113,7 @@ class ComidaPropuesta:
     tipo_comida: TipoComida
     receta_id: int | None
     tiene_conflicto_flexible: bool = False
+    requiere_sustituciones: bool = False
 
 
 @dataclass(frozen=True)
@@ -381,6 +394,12 @@ def armar_propuesta_menu(
                     if candidata is not None
                     else False
                 ),
+                requiere_sustituciones=(
+                    candidata.requiere_sustituciones
+                    if candidata is not None
+                    else False
+                ),
+
             )
         )
 
@@ -453,3 +472,92 @@ def _completar_con_distintas(
         )
         for receta_id, posicion in propietarios.items()
     }
+
+class PerfilMenuRequeridoError(Exception):
+    pass
+
+
+class GeneradorMenuService:
+    """
+    Conecta la base de datos con el algoritmo de generación.
+
+    Utiliza las restricciones alimentarias actuales como
+    obligatorias hasta incorporar DF-06 v2.
+    """
+
+    def __init__(self, db: Session):
+        self.recetas = RecetaRepository(db)
+        self.perfiles = PerfilAlimentarioRepository(db)
+
+    def generar(
+        self,
+        cuenta_id: int,
+        cantidad_dias: int,
+        tipos_comida: list[TipoComida],
+    ) -> PropuestaMenu:
+
+        if not 1 <= cantidad_dias <= 7:
+            raise ValueError(
+                "El menú debe tener entre 1 y 7 días"
+            )
+
+        if not tipos_comida:
+            raise ValueError(
+                "Debe seleccionarse al menos una comida"
+            )
+
+        if len(tipos_comida) != len(set(tipos_comida)):
+            raise ValueError(
+                "No se pueden repetir tipos de comida por día"
+            )
+
+        perfil = self.perfiles.obtener_por_cuenta(
+            cuenta_id
+        )
+
+        if perfil is None:
+            raise PerfilMenuRequeridoError(
+                "Debés configurar tu perfil alimentario primero"
+            )
+
+        recetas = self.recetas.listar()
+
+        candidatas_por_tipo = {}
+
+        for tipo_comida in tipos_comida:
+
+            recetas_filtradas = filtrar_candidatas_basicas(
+                recetas,
+                perfil,
+                tipo_comida,
+            )
+
+            candidatas = []
+
+            for receta in recetas_filtradas:
+
+                estado = evaluar_compatibilidad_receta(
+                    receta,
+                    perfil,
+                )
+
+                if estado == EstadoCompatibilidad.INCOMPATIBLE:
+                    continue
+
+                candidatas.append(
+                    CandidataMenu(
+                        receta_id=receta.id,
+                        tiene_conflicto_flexible=False,
+                        requiere_sustituciones=(
+                            estado == EstadoCompatibilidad.ADAPTABLE
+                        ),
+                    )
+                )
+
+            candidatas_por_tipo[tipo_comida] = candidatas
+
+        return armar_propuesta_menu(
+            cantidad_dias=cantidad_dias,
+            tipos_comida=tipos_comida,
+            candidatas_por_tipo=candidatas_por_tipo,
+        )
