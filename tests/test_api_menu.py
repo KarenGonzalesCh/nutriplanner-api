@@ -4,7 +4,8 @@ from app.models.categoria_alimento import CategoriaAlimento
 from app.models.ingrediente import Ingrediente
 from app.models.receta_ingrediente import RecetaIngrediente
 from app.models.alternativa_ingrediente import AlternativaIngrediente
-
+from app.models.cuenta import Cuenta
+from app.services.preferencias_receta import PreferenciasRecetaService
 
 from decimal import Decimal
 from http import HTTPStatus
@@ -251,3 +252,59 @@ def test_generar_menu_con_sustitucion_pendiente(client):
     assert comida["receta_id"] == ids["receta_leche"]
     assert comida["requiere_sustituciones"]
     assert comida["ingredientes"] == []
+
+def test_generador_respeta_exclusiones_personales(client):
+    test_client, engine = client
+
+    ids = cargar_recetas(engine)
+    headers = autenticar(test_client)
+    crear_perfil(test_client, headers)
+
+    # Preparar una receta válida para el generador.
+    with Session(engine) as db:
+        cuenta_id = db.scalar(select(Cuenta.id))
+        assert cuenta_id is not None
+
+        receta = db.get(Receta, ids["receta_arroz"])
+        assert receta is not None
+
+        receta.porciones_base = 1
+        db.commit()
+
+    # Primero, la receta debe poder seleccionarse.
+    respuesta_antes = test_client.post(
+        "/menus/generar",
+        headers=headers,
+        json=datos_menu(),
+    )
+
+    assert respuesta_antes.status_code == HTTPStatus.OK
+    assert (
+        respuesta_antes.json()["comidas"][0]["receta_id"]
+        == ids["receta_arroz"]
+    )
+
+    # El usuario excluye personalmente esa receta.
+    with Session(engine) as db:
+        preferencias = PreferenciasRecetaService(db)
+
+        preferencias.agregar_exclusion(
+            cuenta_id,
+            ids["receta_arroz"],
+        )
+
+    # Generar nuevamente el mismo menú.
+    respuesta_despues = test_client.post(
+        "/menus/generar",
+        headers=headers,
+        json=datos_menu(),
+    )
+
+    assert respuesta_despues.status_code == HTTPStatus.OK
+
+    resultado = respuesta_despues.json()
+
+    # El fixture no tiene otra receta para ALMUERZO.
+    assert not resultado["estructura_completa"]
+    assert resultado["comidas"][0]["receta_id"] is None
+    assert resultado["comidas"][0]["ingredientes"] == []

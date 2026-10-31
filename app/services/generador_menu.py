@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from app.core.enums import NivelDificultad, TipoComida
 from app.models.receta import Receta
 from app.models.perfil_alimentario import PerfilAlimentario
+from app.services.preferencias_receta import PreferenciasRecetaService
 from heapq import heappop, heappush
 
 from sqlalchemy.orm import Session
@@ -488,6 +489,7 @@ class GeneradorMenuService:
     def __init__(self, db: Session):
         self.recetas = RecetaRepository(db)
         self.perfiles = PerfilAlimentarioRepository(db)
+        self.preferencias = PreferenciasRecetaService(db)
 
     def generar(
         self,
@@ -521,6 +523,16 @@ class GeneradorMenuService:
             )
 
         recetas = self.recetas.listar()
+
+        ids_excluidos = set(
+            self.preferencias.listar_excluidas(cuenta_id)
+        )
+
+        recetas = [
+            receta
+            for receta in recetas
+            if receta.id not in ids_excluidos
+        ]
 
         candidatas_por_tipo = {}
 
