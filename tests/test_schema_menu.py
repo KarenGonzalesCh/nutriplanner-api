@@ -68,3 +68,16 @@ def test_rechaza_menu_sin_comidas():
             tipos_comida=[],
             comensales=2,
         )
+
+@pytest.mark.parametrize(
+    "tamano",
+    [TamanoPorcion.PEQUENA, TamanoPorcion.GRANDE],
+)
+def test_rechaza_tamanos_no_implementados(tamano):
+    with pytest.raises(ValidationError):
+        GenerarMenuRequest(
+            cantidad_dias=2,
+            tipos_comida=[TipoComida.ALMUERZO],
+            comensales=2,
+            tamano_porcion=tamano,
+        )
