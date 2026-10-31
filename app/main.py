@@ -10,6 +10,8 @@ from app.api.routes.alergia import router as alergias_router
 from app.api.routes.categoria_alimento import router as categorias_router
 from app.api.routes.ingrediente import router as ingredientes_router
 from app.api.routes.receta import router as receta_router
+from app.api.routes.menu import router as menu_router
+from app.api.routes.preferencias_receta import router as preferencias_router
 
 app = FastAPI(
     title=settings.app_name,
@@ -49,5 +51,6 @@ app.include_router(alergias_router)
 app.include_router(categorias_router)
 
 app.include_router(ingredientes_router)
-
+app.include_router(preferencias_router)
 app.include_router(receta_router)
+app.include_router(menu_router)
