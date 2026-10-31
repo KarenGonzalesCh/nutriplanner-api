@@ -15,6 +15,7 @@ RECETAS_INICIALES = [
         "pasos": "Calentar la leche, agregar la avena y servir con banana cortada.",
         "tiempo_preparacion": 10,
         "dificultad": NivelDificultad.PRINCIPIANTE,
+        "porciones_base": 1,
         "tipos_comida": [TipoComida.DESAYUNO, TipoComida.MERIENDA],
         "ingredientes": [
             ("Avena", 50, "g"),
@@ -27,6 +28,7 @@ RECETAS_INICIALES = [
         "pasos": "Cocinar el arroz. Cocinar el pollo con aceite de oliva y servir juntos.",
         "tiempo_preparacion": 35,
         "dificultad": NivelDificultad.INTERMEDIO,
+        "porciones_base": 1,
         "tipos_comida": [TipoComida.ALMUERZO, TipoComida.CENA],
         "ingredientes": [
             ("Arroz", 150, "g"),
@@ -39,6 +41,7 @@ RECETAS_INICIALES = [
         "pasos": "Cocinar los garbanzos si es necesario. Cortar las verduras y mezclar.",
         "tiempo_preparacion": 20,
         "dificultad": NivelDificultad.PRINCIPIANTE,
+        "porciones_base": 1,
         "tipos_comida": [TipoComida.ALMUERZO, TipoComida.CENA],
         "ingredientes": [
             ("Garbanzos", 150, "g"),
@@ -51,6 +54,7 @@ RECETAS_INICIALES = [
         "pasos": "Batir los huevos, agregar espinaca y queso, y cocinar en sartén.",
         "tiempo_preparacion": 15,
         "dificultad": NivelDificultad.PRINCIPIANTE,
+        "porciones_base": 1,
         "tipos_comida": [TipoComida.DESAYUNO, TipoComida.ALMUERZO],
         "ingredientes": [
             ("Huevo", 2, "unidad"),
@@ -63,6 +67,7 @@ RECETAS_INICIALES = [
         "pasos": "Cocinar la merluza y acompañar con arroz hervido.",
         "tiempo_preparacion": 30,
         "dificultad": NivelDificultad.INTERMEDIO,
+        "porciones_base": 1,
         "tipos_comida": [TipoComida.ALMUERZO, TipoComida.CENA],
         "ingredientes": [
             ("Merluza", 200, "g"),
@@ -87,7 +92,10 @@ def main():
                 select(Receta).where(Receta.nombre == datos["nombre"])
             )
 
+            # Si ya existe, completar porciones_base solo si falta.
             if receta_existente is not None:
+                if receta_existente.porciones_base is None:
+                    receta_existente.porciones_base = datos["porciones_base"]
                 continue
 
             for nombre, _, _ in datos["ingredientes"]:
@@ -101,6 +109,7 @@ def main():
                 pasos=datos["pasos"],
                 tiempo_preparacion=datos["tiempo_preparacion"],
                 dificultad=datos["dificultad"],
+                porciones_base=datos["porciones_base"],
                 info_nutricional=None,
                 activa=True,
             )
