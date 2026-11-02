@@ -1,7 +1,7 @@
 
 from http import HTTPStatus
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from app.api.dependencies import obtener_cuenta_actual
@@ -14,6 +14,7 @@ from app.services.receta import (
     RecetaNoEncontradaError,
     PerfilRequeridoError,
 )
+from app.core.enums import TipoComida
 
 
 router = APIRouter(
@@ -28,13 +29,19 @@ router = APIRouter(
     status_code=HTTPStatus.OK,
 )
 def listar_recetas(
+    tipo_comida: TipoComida | None = None,
+    limite: int | None = Query(default=None, ge=1),
     cuenta_actual: Cuenta = Depends(obtener_cuenta_actual),
     db: Session = Depends(get_db),
 ):
     servicio = RecetaService(db)
 
     try:
-        return servicio.listar(cuenta_actual.id)
+        return servicio.listar(
+            cuenta_id=cuenta_actual.id,
+            tipo_comida=tipo_comida,
+            limite=limite,
+        )
 
     except PerfilRequeridoError as error:
         raise HTTPException(

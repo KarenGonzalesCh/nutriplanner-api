@@ -41,16 +41,23 @@ def verificar_cantidades(db_test):
     with db_test() as db:
         recetas = db.scalars(select(Receta)).all()
 
-        assert len(recetas) == 5
+        assert len(recetas) == len(seed_recetas.RECETAS_INICIALES)
 
         assert sum(
-            len(receta.ingredientes) for receta in recetas
-        ) == 15
+            len(receta.ingredientes)
+            for receta in recetas
+        ) == sum(
+            len(datos["ingredientes"])
+            for datos in seed_recetas.RECETAS_INICIALES
+        )
 
         assert sum(
-            len(receta.tipos_comida) for receta in recetas
-        ) == 10
-
+            len(receta.tipos_comida)
+            for receta in recetas
+        ) == sum(
+            len(datos["tipos_comida"])
+            for datos in seed_recetas.RECETAS_INICIALES
+        )
 
 def test_precarga_inicial_recetas(db_test):
     seed_catalogos.main()
