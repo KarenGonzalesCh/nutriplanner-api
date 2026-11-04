@@ -56,6 +56,18 @@ INGREDIENTES_INICIALES = [
     ("Espinaca", "Verduras"),
     ("Tomate", "Verduras"),
     ("Zanahoria", "Verduras"),
+    ("Papa", "Verduras"),
+    ("Batata", "Verduras"),
+    ("Cebolla", "Verduras"),
+    ("Ajo", "Verduras"),
+    ("Zapallo", "Verduras"),
+    ("Brócoli", "Verduras"),
+    ("Pera", "Frutas"),
+    ("Frutilla", "Frutas"),
+    ("Naranja", "Frutas"),
+    ("Yogur natural", "Lácteos"),
+    ("Harina de maíz", "Cereales"),
+    ("Quinoa", "Cereales"),
 ]
 
 
@@ -71,6 +83,7 @@ ALERGIAS_POR_INGREDIENTE = {
     "Atún": ["Pescado"],
     "Merluza": ["Pescado"],
     "Camarón": ["Mariscos"],
+    "Yogur natural": ["Leche"],
 }
 
 

@@ -1,4 +1,3 @@
-
 from http import HTTPStatus
 
 import pytest
@@ -166,11 +165,13 @@ def cargar_recetas(engine):
 
         ids = {
             "leche": leche.id,
+            "arroz": arroz.id,
             "categoria_lacteos": lacteos.id,
             "alergia_leche": alergia_leche.id,
             "receta_leche": receta_leche.id,
             "receta_arroz": receta_arroz.id,
             "receta_inactiva": receta_inactiva.id,
+            
         }
 
         session.commit()
@@ -344,6 +345,141 @@ def test_detalle_receta_incompatible(client):
     )
 
     assert respuesta.status_code == HTTPStatus.NOT_FOUND
+
+def test_filtrar_recetas_por_tipo_comida(client):
+    test_client, engine = client
+    cargar_recetas(engine)
+
+    headers = autenticar(test_client)
+    crear_perfil(test_client, headers)
+
+    respuesta = test_client.get(
+        "/recetas?tipo_comida=DESAYUNO",
+        headers=headers,
+    )
+
+    assert respuesta.status_code == HTTPStatus.OK
+
+    datos = respuesta.json()
+
+    assert len(datos) == 1
+    assert datos[0]["nombre"] == "Vaso de leche"
+    assert "DESAYUNO" in datos[0]["tipos_comida"]
+
+
+def test_limitar_cantidad_recetas(client):
+    test_client, engine = client
+    cargar_recetas(engine)
+
+    headers = autenticar(test_client)
+    crear_perfil(test_client, headers)
+
+    respuesta = test_client.get(
+        "/recetas?limite=1",
+        headers=headers,
+    )
+
+    assert respuesta.status_code == HTTPStatus.OK
+    assert len(respuesta.json()) == 1
+
+def test_filtrar_tipo_comida_y_limite(client):
+    test_client, engine = client
+    cargar_recetas(engine)
+
+    headers = autenticar(test_client)
+    crear_perfil(test_client, headers)
+
+    respuesta = test_client.get(
+        "/recetas?tipo_comida=ALMUERZO&limite=1",
+        headers=headers,
+    )
+
+    assert respuesta.status_code == HTTPStatus.OK
+    assert len(respuesta.json()) == 1
+    assert respuesta.json()[0]["nombre"] == "Arroz hervido"
+
+def test_tipo_comida_invalido(client):
+    test_client, _ = client
+
+    headers = autenticar(test_client)
+    crear_perfil(test_client, headers)
+
+    respuesta = test_client.get(
+        "/recetas?tipo_comida=PIZZA",
+        headers=headers,
+    )
+
+    assert respuesta.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
+
+def test_limite_invalido(client):
+    test_client, _ = client
+
+    headers = autenticar(test_client)
+    crear_perfil(test_client, headers)
+
+    respuesta = test_client.get(
+        "/recetas?limite=0",
+        headers=headers,
+    )
+
+    assert respuesta.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
+
+def test_limite_despues_de_strategy(client):
+    test_client, engine = client
+    ids = cargar_recetas(engine)
+
+    headers = autenticar(test_client)
+
+    crear_perfil(
+        test_client,
+        headers,
+        ingredientes_evitados_ids=[ids["arroz"]],
+    )
+
+    respuesta = test_client.get(
+        "/recetas?limite=1",
+        headers=headers,
+    )
+
+    assert respuesta.status_code == HTTPStatus.OK
+
+    datos = respuesta.json()
+
+    assert len(datos) == 1
+    assert datos[0]["nombre"] == "Vaso de leche"
+
+
+def test_tipo_comida_sin_resultados(client):
+    test_client, engine = client
+    cargar_recetas(engine)
+
+    headers = autenticar(test_client)
+    crear_perfil(test_client, headers)
+
+    respuesta = test_client.get(
+        "/recetas?tipo_comida=CENA",
+        headers=headers,
+    )
+
+    assert respuesta.status_code == HTTPStatus.OK
+    assert respuesta.json() == []
+
+
+def test_limite_mayor_a_recetas_disponibles(client):
+    test_client, engine = client
+    cargar_recetas(engine)
+
+    headers = autenticar(test_client)
+    crear_perfil(test_client, headers)
+
+    respuesta = test_client.get(
+        "/recetas?limite=10",
+        headers=headers,
+    )
+
+    assert respuesta.status_code == HTTPStatus.OK
+    assert len(respuesta.json()) == 2
+
 
 def test_receta_excluida_sigue_visible_en_catalogo(client):
     test_client, engine = client

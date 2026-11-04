@@ -56,7 +56,7 @@ def test_precarga_inicial(db_test):
 
         assert cantidad_categorias == 10
         assert cantidad_alergias == 9
-        assert cantidad_ingredientes == 23
+        assert cantidad_ingredientes == 35
 
         queso = db.scalar(
             select(Ingrediente).where(
@@ -64,7 +64,19 @@ def test_precarga_inicial(db_test):
             )
         )
 
+        assert queso is not None
         assert [alergia.nombre for alergia in queso.alergias] == [
+            "Leche"
+        ]
+
+        yogur = db.scalar(
+            select(Ingrediente).where(
+                Ingrediente.nombre == "Yogur natural"
+            )
+        )
+
+        assert yogur is not None
+        assert [alergia.nombre for alergia in yogur.alergias] == [
             "Leche"
         ]
 
@@ -89,11 +101,11 @@ def test_precarga_no_duplica_datos(db_test):
 
         assert len(categorias) == 10
         assert len(alergias) == 9
-        assert len(ingredientes) == 23
+        assert len(ingredientes) == 35
 
         cantidad_relaciones = sum(
             len(ingrediente.alergias)
             for ingrediente in ingredientes
         )
 
-        assert cantidad_relaciones == 11
+        assert cantidad_relaciones == 12

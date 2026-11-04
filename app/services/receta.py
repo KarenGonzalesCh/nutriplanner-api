@@ -14,6 +14,7 @@ from app.schemas.receta import (
     RecetaResponse,
     RecetaIngredienteResponse,
 )
+from app.core.enums import TipoComida
 
 
 class RecetaNoEncontradaError(Exception):
@@ -64,15 +65,44 @@ class RecetaService:
             ],
         )
 
-    def listar(self, cuenta_id: int) -> list[RecetaResponse]:
+    def listar(
+        self,
+        cuenta_id: int,
+        tipo_comida: TipoComida | None = None,
+        limite: int | None = None,
+    ) -> list[RecetaResponse]:
+
         perfil = self._obtener_perfil(cuenta_id)
         recetas = self.repository.listar()
 
-        return [
-            self._preparar_respuesta(receta)
-            for receta in recetas
-            if self.evaluador.es_compatible(receta, perfil)
-        ]
+        resultado = []
+
+        for receta in recetas:
+
+            # Filtrar por tipo de comida, si se indicó.
+            if tipo_comida is not None:
+                tipos = [
+                    relacion.tipo_comida
+                    for relacion in receta.tipos_comida
+                ]
+
+                if tipo_comida not in tipos:
+                    continue
+
+            # Evaluar compatibilidad mediante Strategy.
+            if not self.evaluador.es_compatible(receta, perfil):
+                continue
+
+            # Agregar solamente recetas compatibles.
+            resultado.append(self._preparar_respuesta(receta))
+
+            # Aplicar el límite después de verificar compatibilidad.
+            if limite is not None and len(resultado) >= limite:
+                break
+
+        return resultado
+
+
 
     def obtener_por_id(
         self,
