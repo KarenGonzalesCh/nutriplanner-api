@@ -21,7 +21,8 @@ import app.models.receta
 import app.models.receta_ingrediente
 import app.models.receta_tipo_comida
 import app.models.alternativa_ingrediente
-
+import app.models.cuenta_receta_favorita
+import app.models.cuenta_receta_excluida
 
 config = context.config
 

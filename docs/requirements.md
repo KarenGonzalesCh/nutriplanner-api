@@ -402,6 +402,10 @@ Menú histórico:
 
 **RN8 — Prioridad de la exclusión:** si una misma receta se encuentra simultáneamente marcada como favorita y excluida, la exclusión tendrá prioridad. La receta podrá mantenerse en la lista de favoritas, pero no deberá aparecer en nuevas sugerencias ni menús mientras permanezca excluida (ver RN19).
 
+**Diferencia entre exclusiones y restricciones alimentarias:** las restricciones alimentarias pertenecen al perfil del usuario e incluyen alergias, ingredientes y categorías a evitar. Estas se evalúan mediante las reglas de compatibilidad alimentaria.
+
+Las exclusiones son preferencias explícitas sobre recetas individuales. Una receta puede ser compatible con el perfil del usuario y estar exclida igualmente. La exclusión no modifica las restricciones alimentarias del perfil.
+
 ### 4.6 Calificaciones
 
 **RN9 — Rango de calificación:** la puntuación asignada a una receta deberá ser un número entero comprendido entre 1 y 5.

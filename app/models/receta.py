@@ -28,6 +28,12 @@ class Receta(Base):
         nullable=False
     )
 
+    porciones_base: Mapped[int | None] = mapped_column(
+        Integer,
+        nullable=True
+    )
+    
+
     dificultad: Mapped[NivelDificultad] = mapped_column(
         SQLEnum(NivelDificultad),
         nullable=False
