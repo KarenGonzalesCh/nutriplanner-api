@@ -24,6 +24,8 @@ import app.models.alternativa_ingrediente
 import app.models.cuenta_receta_favorita
 import app.models.cuenta_receta_excluida
 import app.models.cuenta_sustitucion_ingrediente
+import app.models.menu
+
 config = context.config
 
 if config.config_file_name is not None:

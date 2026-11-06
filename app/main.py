@@ -11,6 +11,7 @@ from app.api.routes.categoria_alimento import router as categorias_router
 from app.api.routes.ingrediente import router as ingredientes_router
 from app.api.routes.receta import router as receta_router
 from app.api.routes.menu import router as menu_router
+from app.api.routes.menus_guardados import router as menus_guardados_router
 from app.api.routes.preferencias_receta import router as preferencias_router
 from app.api.routes.seleccion_sustitucion import router as sustituciones_router
 
@@ -59,3 +60,4 @@ app.include_router(preferencias_router)
 app.include_router(receta_router)
 app.include_router(menu_router)
 app.include_router(sustituciones_router)
+app.include_router(menus_guardados_router)
