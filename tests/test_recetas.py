@@ -344,8 +344,21 @@ def test_detalle_receta_incompatible(client):
         headers=headers,
     )
 
-    assert respuesta.status_code == HTTPStatus.NOT_FOUND
+    # Se permite consultar el detalle.
+    assert respuesta.status_code == HTTPStatus.OK
+    assert respuesta.json()["nombre"] == "Vaso de leche"
 
+    # Pero la compatibilidad sigue siendo INCOMPATIBLE.
+    compatibilidad = test_client.get(
+        f"/recetas/{ids['receta_leche']}/compatibilidad",
+        headers=headers,
+    )
+
+    assert compatibilidad.status_code == HTTPStatus.OK
+    assert (
+        compatibilidad.json()["estado_compatibilidad"]
+        == "INCOMPATIBLE"
+    )
 def test_filtrar_recetas_por_tipo_comida(client):
     test_client, engine = client
     cargar_recetas(engine)
@@ -522,3 +535,47 @@ def test_receta_excluida_sigue_visible_en_catalogo(client):
 
     assert exclusiones.status_code == HTTPStatus.OK
     assert receta_id in exclusiones.json()
+
+
+def test_listar_recetas_incluyendo_incompatibles(client):
+    test_client, engine = client
+
+    # Crear las recetas de prueba.
+    ids = cargar_recetas(engine)
+
+    # Autenticar al usuario.
+    headers = autenticar(test_client)
+
+    # Configurar un perfil que evita la leche.
+    crear_perfil(
+        test_client,
+        headers,
+        ingredientes_evitados_ids=[ids["leche"]],
+    )
+
+    # Comprobar el comportamiento original.
+    respuesta = test_client.get(
+        "/recetas",
+        headers=headers,
+    )
+
+    assert respuesta.status_code == HTTPStatus.OK
+    assert len(respuesta.json()) == 1
+    assert respuesta.json()[0]["nombre"] == "Arroz hervido"
+
+    # Solicitar el catálogo incluyendo incompatibles.
+    respuesta = test_client.get(
+        "/recetas?incluir_incompatibles=true",
+        headers=headers,
+    )
+
+    assert respuesta.status_code == HTTPStatus.OK
+
+    nombres = [receta["nombre"] for receta in respuesta.json()]
+
+    assert "Arroz hervido" in nombres
+    assert "Vaso de leche" in nombres
+
+    # Las recetas inactivas siguen excluidas.
+    ids_recetas = [receta["id"] for receta in respuesta.json()]
+    assert ids["receta_inactiva"] not in ids_recetas

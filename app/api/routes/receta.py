@@ -31,6 +31,7 @@ router = APIRouter(
 def listar_recetas(
     tipo_comida: TipoComida | None = None,
     limite: int | None = Query(default=None, ge=1),
+    incluir_incompatibles: bool = False,
     cuenta_actual: Cuenta = Depends(obtener_cuenta_actual),
     db: Session = Depends(get_db),
 ):
@@ -41,6 +42,7 @@ def listar_recetas(
             cuenta_id=cuenta_actual.id,
             tipo_comida=tipo_comida,
             limite=limite,
+            incluir_incompatibles=incluir_incompatibles,
         )
 
     except PerfilRequeridoError as error:
