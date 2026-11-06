@@ -70,6 +70,7 @@ class RecetaService:
         cuenta_id: int,
         tipo_comida: TipoComida | None = None,
         limite: int | None = None,
+        incluir_incompatibles: bool = False,
     ) -> list[RecetaResponse]:
 
         perfil = self._obtener_perfil(cuenta_id)
@@ -89,14 +90,15 @@ class RecetaService:
                 if tipo_comida not in tipos:
                     continue
 
-            # Evaluar compatibilidad mediante Strategy.
-            if not self.evaluador.es_compatible(receta, perfil):
-                continue
+            # Mantener el filtro Strategy por defecto.
+            if not incluir_incompatibles:
+                if not self.evaluador.es_compatible(receta, perfil):
+                    continue
 
-            # Agregar solamente recetas compatibles.
+            # Agregar receta al resultado.
             resultado.append(self._preparar_respuesta(receta))
 
-            # Aplicar el límite después de verificar compatibilidad.
+            # Aplicar el límite después de los filtros.
             if limite is not None and len(resultado) >= limite:
                 break
 
@@ -109,7 +111,9 @@ class RecetaService:
         cuenta_id: int,
         receta_id: int,
     ) -> RecetaResponse:
-        perfil = self._obtener_perfil(cuenta_id)
+
+        self._obtener_perfil(cuenta_id)
+
         receta = self.repository.obtener_por_id(receta_id)
 
         if receta is None:
@@ -117,11 +121,8 @@ class RecetaService:
                 "La receta no existe o no está disponible"
             )
 
-        if not self.evaluador.es_compatible(receta, perfil):
-            raise RecetaNoEncontradaError(
-                "La receta no está disponible para tu perfil"
-            )
-
+        # Permitir consultar cualquier receta activa.
+        
         return self._preparar_respuesta(receta)
 
     def obtener_compatibilidad(
