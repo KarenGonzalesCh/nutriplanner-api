@@ -13,3 +13,4 @@ from app.models.receta_ingrediente import RecetaIngrediente
 from app.models.alternativa_ingrediente import AlternativaIngrediente
 from app.models.cuenta_receta_favorita import CuentaRecetaFavorita
 from app.models.cuenta_receta_excluida import CuentaRecetaExcluida
+from app.models.cuenta_sustitucion_ingrediente import CuentaSustitucionIngrediente
