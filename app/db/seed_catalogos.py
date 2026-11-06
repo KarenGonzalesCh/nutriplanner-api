@@ -46,6 +46,9 @@ INGREDIENTES_INICIALES = [
     ("Sésamo", "Frutos secos y semillas"),
     ("Huevo", "Huevos"),
     ("Leche", "Lácteos"),
+    ("Leche de coco", "Frutas"),
+    ("Leche de almendras", "Frutos secos y semillas"),
+    ("Bebida de avena", "Cereales"),
     ("Queso", "Lácteos"),
     ("Garbanzos", "Legumbres"),
     ("Lentejas", "Legumbres"),
@@ -73,6 +76,7 @@ INGREDIENTES_INICIALES = [
 
 ALERGIAS_POR_INGREDIENTE = {
     "Almendra": ["Frutos secos"],
+    "Leche de almendras": ["Frutos secos"],
     "Maní": ["Maní"],
     "Sésamo": ["Sésamo"],
     "Huevo": ["Huevo"],
