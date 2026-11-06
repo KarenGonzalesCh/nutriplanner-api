@@ -17,6 +17,37 @@ ALTERNATIVAS_INICIALES = [
     },
 ]
 
+# Recetas que contienen leche de origen animal.
+RECETAS_CON_LECHE = [
+    "Avena con banana",
+    "Avena con manzana",
+    "Avena con almendras y banana",
+    "Licuado de banana y avena",
+    "Licuado de manzana y avena",
+    "Licuado de frutillas y banana",
+    "Porridge de avena y pera",
+]
+
+# Alternativas vegetales.
+BEBIDAS_VEGETALES = [
+    "Leche de coco",
+    "Leche de almendras",
+    "Bebida de avena",
+]
+
+# Asociar cada alternativa a cada receta.
+for receta in RECETAS_CON_LECHE:
+    for sustituto in BEBIDAS_VEGETALES:
+        ALTERNATIVAS_INICIALES.append(
+            {
+                "receta": receta,
+                "original": "Leche",
+                "sustituto": sustituto,
+                "cantidad": 200,
+                "unidad": "ml",
+            }
+        )
+
 
 def main():
     with SessionLocal() as db:
