@@ -1,4 +1,6 @@
+from datetime import datetime
 
+from sqlalchemy import Boolean, DateTime
 from sqlalchemy import Enum as SQLEnum
 from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -31,6 +33,32 @@ class Cuenta(Base):
     password_hash: Mapped[str] = mapped_column(
         String(255),
         nullable=False
+    )
+
+    # Indica si el usuario confirmó su dirección de correo.
+    correo_verificado: Mapped[bool] = mapped_column(
+        Boolean,
+        nullable=False,
+        default=False
+    )
+
+    # Hash del token de confirmación enviado por correo.
+    verificacion_token_hash: Mapped[str | None] = mapped_column(
+        String(64),
+        nullable=True,
+        unique=True
+    )
+
+    # Fecha y hora de vencimiento del token.
+    verificacion_expira_en: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True
+    )
+
+    # Fecha y hora del último envío de confirmación.
+    verificacion_enviada_en: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True
     )
 
     rol: Mapped[Rol] = mapped_column(

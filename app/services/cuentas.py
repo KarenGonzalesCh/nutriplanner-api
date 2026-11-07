@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 
 from app.core.enums import Rol
+from app.core.config import settings
 from app.core.security import generar_hash, verificar_password
 from app.models.cuenta import Cuenta
 from app.repositories.cuenta import CuentaRepository
@@ -17,6 +18,8 @@ class CuentaYaExisteError(Exception):
 class CredencialesInvalidasError(Exception):
     """Indica que el usuario o la contraseña son incorrectos."""
 
+class CorreoNoVerificadoError(Exception):
+    """Indica que el usuario debe verificar su correo para ingresar."""
 
 class CuentaService:
 
@@ -39,6 +42,7 @@ class CuentaService:
             correo=datos.correo,
             password_hash=generar_hash(datos.password),
             rol=Rol.USUARIO,
+            correo_verificado=not settings.email_verification_enabled,
         )
 
         return self.repository.crear(nueva_cuenta)
@@ -52,9 +56,22 @@ class CuentaService:
                 "Credenciales incorrectas"
             )
 
-        if not verificar_password(password, cuenta.password_hash):
+        if not verificar_password(
+            password,
+            cuenta.password_hash,
+        ):
             raise CredencialesInvalidasError(
                 "Credenciales incorrectas"
+            )
+
+        # No permitir el acceso si se exige verificación
+        # y el usuario todavía no confirmó su correo.
+        if (
+            settings.email_verification_enabled
+            and not cuenta.correo_verificado
+        ):
+            raise CorreoNoVerificadoError(
+                "Debés verificar tu correo electrónico antes de ingresar"
             )
 
         return cuenta

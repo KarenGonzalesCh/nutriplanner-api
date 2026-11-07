@@ -16,3 +16,4 @@ class CuentaResponse(BaseModel):
     nombre_usuario: str
     correo: str
     rol: Rol
+    correo_verificado: bool
