@@ -169,45 +169,8 @@ En una futura etapa comercial, NutriPlanner adoptaría un modelo freemium. El pl
 El objetivo del plan gratuito sería permitir que el usuario conozca y utilice el servicio sin realizar un pago inicial. El plan Premium constituiría la principal fuente de ingresos prevista, mientras que la publicidad contribuiría al sostenimiento de los costos asociados a los usuarios gratuitos.
 
 
-```text
-                     [ DEMO ]
+![Etapas de desarrollo y evolución comercial de NutriPlanner](imagenes/evolucion_nutriplanner.png)
 
-  Versión académica implementada y demostrable
-
-                        │
-
-                        ▼
-
-                     [ MVP ]
-
-  Completar reutilización, calificaciones y moderación
-
-                        │
-
-                        ▼
-
-              [ EVOLUCIÓN COMERCIAL ]
-
-                        │
-
-          ┌─────────────┴─────────────┐
-
-          ▼                           ▼
-
-     [ GRATUITO ]                [ PREMIUM ]
-
-          │                           │
-
-  Funciones básicas           Funciones avanzadas
-
-          │                           │
-
-      Publicidad             Suscripción mensual/anual
-
-          │                           │
-
-     Con anuncios               Sin publicidad
-```
 
 ## 2. Requerimientos de alto nivel
 
