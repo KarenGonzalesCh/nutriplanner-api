@@ -43,4 +43,15 @@ def obtener_cuenta_actual(
     if cuenta is None:
         raise error_credenciales
 
+    # Impedir acceso con un JWT anterior si la cuenta
+    # todavía tiene el correo sin verificar.
+    if (
+        settings.email_verification_enabled
+        and not cuenta.correo_verificado
+    ):
+        raise HTTPException(
+            status_code=HTTPStatus.FORBIDDEN,
+            detail="Debés verificar tu correo electrónico antes de ingresar",
+        )
+
     return cuenta

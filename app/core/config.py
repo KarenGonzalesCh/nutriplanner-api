@@ -16,6 +16,21 @@ class Settings(BaseSettings):
     algorithm: str = "HS256"
     access_token_expire_minutes: int = 30
 
+    # La verificación se activará cuando esté configurado
+    # el servicio de envío de correos.
+    email_verification_enabled: bool = False
+
+    # Configuración del proveedor de correo.
+    resend_api_key: str | None = None
+    email_from: str | None = None
+
+    # URL del frontend para construir el enlace.
+    frontend_url: str = "http://localhost:8080"
+
+    # Vigencia y frecuencia de envío.
+    email_verification_token_hours: int = 24
+    email_verification_resend_seconds: int = 60
+
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
 
