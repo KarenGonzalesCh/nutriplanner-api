@@ -26,7 +26,7 @@ NutriPlanner permite consultar recetas precargadas y preparar menús personaliza
 - Evaluación de restricciones mediante el patrón de diseño **Strategy** (alergias, ingredientes y categorías).
 - Generación de propuestas temporales de menús de **1 a 7 días**, para desayuno, almuerzo, merienda y cena.
 - Selección de sustituciones de ingredientes previamente definidas y validación antes del guardado.
-- Guardado de menús completos, consulta del historial y eliminación de menús propios. Los menús guardados conservan instantáneas de las recetas y sustituciones confirmadas.
+- Guardado de menús completos, consulta del historial y eliminación de menús propios. Los menús guardados conservan instantáneas de las recetas, las sustituciones confirmadas y la fecha de inicio (`fecha_inicio`). Este último campo es opcional para mantener la compatibilidad con menús creados anteriormente.
 - Gestión de recetas favoritas y excluidas.
 
 **Alcances y limitaciones:** la generación no guarda automáticamente el menú; el usuario debe confirmar sus comidas y sustituciones. Los cambios o reemplazos realizados en el frontend se revalidan al guardar. En la demo, el frontend utiliza un comensal y tamaño de porción normal, aunque la API contempla otros valores dentro de sus restricciones. El catálogo y los datos nutricionales son precargados.
@@ -125,9 +125,23 @@ FRONTEND_URL=http://localhost:8080
 
 No reutilizar la clave de ejemplo para producción. Con la verificación desactivada no se necesitan las credenciales de Resend para registrar usuarios locales.
 
-### 4. Aplicar migraciones
+### 4. Inicializar la base de datos y aplicar migraciones
+
+La inicialización de una base de datos nueva requiere cargar los catálogos y las recetas iniciales antes de ejecutar determinadas migraciones de datos.
+
+Para una base PostgreSQL nueva y vacía, se validó el siguiente procedimiento:
 
 ```bash
+# 1. Crear la estructura inicial
+python -m alembic upgrade 1a77b668d21f
+
+# 2. Cargar categorías, alergias e ingredientes
+python -m app.db.seed_catalogos
+
+# 3. Cargar las recetas iniciales
+python -m app.db.seed_recetas
+
+# 4. Aplicar las migraciones restantes
 python -m alembic upgrade head
 ```
 
@@ -211,7 +225,14 @@ python -m pytest -v
 
 Las pruebas cubren, entre otros módulos, cuentas y autenticación, verificación de correo, modelos, catálogos, perfiles, restricciones, compatibilidad, generación, validación y guardado de menús, alternativas y sustituciones.
 
-El PR #22 informó **203 pruebas aprobadas** durante su validación. Como esta cifra puede cambiar, se recomienda ejecutar la suite y registrar el resultado del commit evaluado, en lugar de considerar ese número permanente.
+
+**Última validación (08/11/2026):** se ejecutó la suite completa del backend mediante `python -m pytest -q`, obteniendo **204 pruebas aprobadas y 4 advertencias**, sin fallos.
+
+Entre las pruebas se incluye la verificación del guardado, consulta y eliminación de menús con y sin el campo `fecha_inicio`, asegurando la compatibilidad con solicitudes anteriores.
+
+Además, GitHub Actions ejecutó correctamente las pruebas automatizadas después de integrar el PR #24 en `main`.
+
+La cantidad de pruebas puede modificarse en futuras versiones, por lo que se recomienda ejecutar nuevamente la suite para validar cada entrega.
 
 ## Despliegue
 
@@ -226,6 +247,11 @@ python -m alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 800
 Esto aplica las migraciones pendientes antes de iniciar la API. Para PostgreSQL, `DATABASE_URL` debe usar un esquema SQLAlchemy compatible con el driver instalado, por ejemplo `postgresql+psycopg://...`; la cadena real se guarda **solo** como variable de entorno en Render. Antes de migraciones que afecten datos en producción, generar o verificar un respaldo y revisar los cambios.
 
 La API permite solicitudes CORS desde `https://nutriplanner-front.onrender.com` y desde los orígenes locales explícitamente configurados en `app/main.py`. La variable `FRONTEND_URL` sirve para crear los enlaces de verificación; no modifica por sí sola la lista CORS.
+
+**Consideración sobre la inicialización:** el despliegue actual utiliza una base PostgreSQL previamente inicializada en Supabase. El comando `alembic upgrade head` aplica las migraciones pendientes, pero una instalación completamente nueva requiere cargar previamente los datos iniciales descritos en la sección de instalación.
+
+La migración `bc1da46fd604`, que incorpora `fecha_inicio` a los menús, fue validada en PostgreSQL con datos existentes. Se comprobó que conserva los menús anteriores, sus comidas y sus instantáneas, dejando `fecha_inicio` en `NULL` cuando no se había registrado una fecha.
+
 
 ### Comprobaciones posteriores al despliegue
 
