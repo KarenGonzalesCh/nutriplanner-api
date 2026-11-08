@@ -1,5 +1,5 @@
 
-from datetime import datetime
+from datetime import date, datetime
 from http import HTTPStatus
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -80,6 +80,7 @@ class MenuResumen(BaseModel):
     id: int
     nombre: str
     cantidad_dias: int
+    fecha_inicio: date | None
     comensales: int
     tamano_porcion: str
     fecha_creacion: datetime

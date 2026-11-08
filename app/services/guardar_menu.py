@@ -118,6 +118,7 @@ class GuardarMenuService:
             cuenta_id=cuenta_id,
             nombre=datos.nombre.strip(),
             cantidad_dias=datos.cantidad_dias,
+            fecha_inicio=datos.fecha_inicio,
             comensales=datos.comensales,
             tamano_porcion=datos.tamano_porcion.value,
             comidas=comidas_validadas,

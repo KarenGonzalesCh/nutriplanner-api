@@ -1,8 +1,9 @@
 
-from datetime import datetime
+from datetime import date, datetime
 
 from sqlalchemy import (
     CheckConstraint,
+    Date,
     DateTime,
     Enum as SQLEnum,
     ForeignKey,
@@ -50,6 +51,11 @@ class Menu(Base):
     cantidad_dias: Mapped[int] = mapped_column(
         Integer,
         nullable=False,
+    )
+
+    fecha_inicio: Mapped[date] = mapped_column(
+        Date,
+        nullable=True,
     )
 
     comensales: Mapped[int] = mapped_column(

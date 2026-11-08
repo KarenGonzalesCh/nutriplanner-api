@@ -1,4 +1,5 @@
 
+import pytest
 from sqlalchemy.orm import Session
 
 from app.models.receta import Receta
@@ -11,7 +12,14 @@ from tests.test_recetas import (
 )
 
 
-def test_api_menu_crear_listar_consultar_y_eliminar(client):
+@pytest.mark.parametrize(
+    "fecha_inicio",
+    [None, "2026-11-07"],
+)
+def test_api_menu_crear_listar_consultar_y_eliminar(
+    client,
+    fecha_inicio,
+):
     test_client, engine = client
 
     ids = cargar_recetas(engine)
@@ -46,6 +54,11 @@ def test_api_menu_crear_listar_consultar_y_eliminar(client):
         ],
     }
 
+    # Incluir la fecha solamente en uno de los escenarios.
+    # Si es None, el campo no se envía al backend.
+    if fecha_inicio is not None:
+        datos["fecha_inicio"] = fecha_inicio
+
     # Sin autenticación no se pueden consultar menús.
     respuesta = test_client.get("/menus")
     assert respuesta.status_code == 401
@@ -63,6 +76,7 @@ def test_api_menu_crear_listar_consultar_y_eliminar(client):
 
     assert respuesta.json()["nombre"] == "Mi menú de prueba"
     assert len(respuesta.json()["comidas"]) == 1
+    assert respuesta.json()["fecha_inicio"] == fecha_inicio
 
     # Listar los menús guardados.
     respuesta = test_client.get(
@@ -73,6 +87,7 @@ def test_api_menu_crear_listar_consultar_y_eliminar(client):
     assert respuesta.status_code == 200
     assert len(respuesta.json()) == 1
     assert respuesta.json()[0]["id"] == menu_id
+    assert respuesta.json()[0]["fecha_inicio"] == fecha_inicio
 
     # Consultar el detalle.
     respuesta = test_client.get(
@@ -81,6 +96,7 @@ def test_api_menu_crear_listar_consultar_y_eliminar(client):
     )
 
     assert respuesta.status_code == 200
+    assert respuesta.json()["fecha_inicio"] == fecha_inicio
 
     comida = respuesta.json()["comidas"][0]
 
@@ -107,6 +123,7 @@ def test_api_menu_crear_listar_consultar_y_eliminar(client):
         headers=headers,
     )
 
+    assert respuesta.status_code == 200
     assert len(respuesta.json()) == 1
 
     # Eliminar el menú original.
