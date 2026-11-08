@@ -28,6 +28,7 @@ def test_api_menu_crear_listar_consultar_y_eliminar(client):
     datos = {
         "nombre": "Mi menú de prueba",
         "cantidad_dias": 1,
+        "fecha_inicio": "2026-11-07",
         "comensales": 2,
         "tamano_porcion": "NORMAL",
         "posiciones_seleccionadas": [
@@ -50,6 +51,7 @@ def test_api_menu_crear_listar_consultar_y_eliminar(client):
     respuesta = test_client.get("/menus")
     assert respuesta.status_code == 401
 
+
     # Guardar el menú.
     respuesta = test_client.post(
         "/menus",
@@ -63,16 +65,18 @@ def test_api_menu_crear_listar_consultar_y_eliminar(client):
 
     assert respuesta.json()["nombre"] == "Mi menú de prueba"
     assert len(respuesta.json()["comidas"]) == 1
+    assert respuesta.json()["fecha_inicio"] == "2026-11-07"
 
     # Listar los menús guardados.
     respuesta = test_client.get(
         "/menus",
         headers=headers,
     )
-
+    
     assert respuesta.status_code == 200
     assert len(respuesta.json()) == 1
     assert respuesta.json()[0]["id"] == menu_id
+    assert respuesta.json()[0]["fecha_inicio"] == "2026-11-07"
 
     # Consultar el detalle.
     respuesta = test_client.get(
@@ -81,6 +85,8 @@ def test_api_menu_crear_listar_consultar_y_eliminar(client):
     )
 
     assert respuesta.status_code == 200
+
+    assert respuesta.json()["fecha_inicio"] == "2026-11-07"
 
     comida = respuesta.json()["comidas"][0]
 
@@ -124,3 +130,5 @@ def test_api_menu_crear_listar_consultar_y_eliminar(client):
     )
 
     assert respuesta.status_code == 404
+
+

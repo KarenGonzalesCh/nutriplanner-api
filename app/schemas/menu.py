@@ -1,6 +1,7 @@
 
 from decimal import Decimal
 from enum import Enum
+from datetime import date
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -103,6 +104,7 @@ class GuardarMenuRequest(BaseModel):
 
     nombre: str = Field(min_length=1, max_length=120)
     cantidad_dias: int = Field(ge=1, le=7)
+    fecha_inicio: date | None = None
     comensales: int = Field(gt=0)
     tamano_porcion: TamanoPorcion = TamanoPorcion.NORMAL
 
