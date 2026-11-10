@@ -1,4 +1,3 @@
-
 from sqlalchemy import select
 
 from app.core.enums import NivelDificultad, TipoComida
@@ -9,10 +8,13 @@ from app.models.receta_ingrediente import RecetaIngrediente
 from app.models.receta_tipo_comida import RecetaTipoComida
 
 
+# Formato de "pasos": cada paso termina con un punto (.) y los pasos se separan
+# con un espacio. No usar puntos dentro de un paso (decimales, abreviaturas, etc.)
+# para no cortar un paso por error al separarlos.
 RECETAS_INICIALES = [
     {
         "nombre": "Avena con banana",
-        "pasos": "Calentar la leche, agregar la avena y servir con banana cortada.",
+        "pasos": "Calentar la leche en una olla a fuego medio. Agregar la avena y revolver 3 a 5 minutos hasta que espese. Pelar la banana y cortarla en rodajas. Servir la avena en un bowl y colocar la banana por encima.",
         "tiempo_preparacion": 10,
         "dificultad": NivelDificultad.PRINCIPIANTE,
         "porciones_base": 1,
@@ -25,7 +27,7 @@ RECETAS_INICIALES = [
     },
     {
         "nombre": "Arroz con pollo",
-        "pasos": "Cocinar el arroz. Cocinar el pollo con aceite de oliva y servir juntos.",
+        "pasos": "Hervir el arroz en abundante agua con una pizca de sal unos 15 minutos y escurrirlo. Cortar el pollo en trozos chicos. Calentar el aceite de oliva en una sartén a fuego medio. Cocinar el pollo 8 a 10 minutos, dándolo vuelta, hasta que no quede rosado por dentro. Mezclar el pollo con el arroz y servir caliente.",
         "tiempo_preparacion": 35,
         "dificultad": NivelDificultad.INTERMEDIO,
         "porciones_base": 1,
@@ -38,7 +40,7 @@ RECETAS_INICIALES = [
     },
     {
         "nombre": "Ensalada de garbanzos",
-        "pasos": "Cocinar los garbanzos si es necesario. Cortar las verduras y mezclar.",
+        "pasos": "Si los garbanzos son secos, remojarlos desde la noche anterior y hervirlos hasta que estén tiernos. Si son de lata, escurrirlos y enjuagarlos. Lavar el tomate y la zanahoria. Cortar el tomate en cubos y rallar la zanahoria. Mezclar todo en un bowl y servir.",
         "tiempo_preparacion": 20,
         "dificultad": NivelDificultad.PRINCIPIANTE,
         "porciones_base": 1,
@@ -51,7 +53,7 @@ RECETAS_INICIALES = [
     },
     {
         "nombre": "Omelette de espinaca",
-        "pasos": "Batir los huevos, agregar espinaca y queso, y cocinar en sartén.",
+        "pasos": "Lavar la espinaca y picarla. Batir los huevos en un bowl con una pizca de sal. Calentar una sartén antiadherente a fuego medio. Verter los huevos y dejar cuajar 1 minuto. Agregar la espinaca y el queso sobre una mitad. Doblar el omelette y cocinar 2 minutos más hasta que el queso se derrita.",
         "tiempo_preparacion": 15,
         "dificultad": NivelDificultad.PRINCIPIANTE,
         "porciones_base": 1,
@@ -64,7 +66,7 @@ RECETAS_INICIALES = [
     },
     {
         "nombre": "Merluza con arroz",
-        "pasos": "Cocinar la merluza y acompañar con arroz hervido.",
+        "pasos": "Hervir el arroz en abundante agua con una pizca de sal unos 15 minutos y escurrirlo. Secar la merluza con papel de cocina y salarla. Calentar el aceite de oliva en una sartén a fuego medio. Cocinar la merluza 3 a 4 minutos de cada lado hasta que se desarme fácilmente con el tenedor. Servir la merluza junto con el arroz.",
         "tiempo_preparacion": 30,
         "dificultad": NivelDificultad.INTERMEDIO,
         "porciones_base": 1,
@@ -76,10 +78,10 @@ RECETAS_INICIALES = [
         ],
     },
 
-    
+
     {
         "nombre": "Avena con manzana",
-        "pasos": "Cocinar la avena con leche y agregar manzana cortada.",
+        "pasos": "Lavar la manzana y cortarla en cubos chicos. Calentar la leche en una olla a fuego medio. Agregar la avena y revolver 3 a 5 minutos hasta que espese. Incorporar la manzana y mezclar. Servir caliente.",
         "tiempo_preparacion": 10,
         "dificultad": NivelDificultad.PRINCIPIANTE,
         "tipos_comida": [TipoComida.DESAYUNO, TipoComida.MERIENDA],
@@ -91,7 +93,7 @@ RECETAS_INICIALES = [
     },
     {
         "nombre": "Banana con almendras",
-        "pasos": "Cortar la banana y acompañar con almendras.",
+        "pasos": "Pelar la banana y cortarla en rodajas. Picar las almendras en trozos chicos. Servir la banana en un plato y espolvorear las almendras por encima.",
         "tiempo_preparacion": 5,
         "dificultad": NivelDificultad.PRINCIPIANTE,
         "tipos_comida": [TipoComida.DESAYUNO, TipoComida.MERIENDA],
@@ -102,7 +104,7 @@ RECETAS_INICIALES = [
     },
     {
         "nombre": "Huevos revueltos con tomate",
-        "pasos": "Batir los huevos y cocinarlos en una sartén con tomate picado.",
+        "pasos": "Lavar el tomate y cortarlo en cubos chicos. Batir los huevos con una pizca de sal. Calentar el aceite de oliva en una sartén a fuego medio. Cocinar el tomate 2 minutos. Agregar los huevos y revolver con una cuchara de madera hasta que cuajen por completo.",
         "tiempo_preparacion": 10,
         "dificultad": NivelDificultad.PRINCIPIANTE,
         "tipos_comida": [TipoComida.DESAYUNO, TipoComida.ALMUERZO],
@@ -114,7 +116,7 @@ RECETAS_INICIALES = [
     },
     {
         "nombre": "Manzana con mantequilla de maní casera",
-        "pasos": "Procesar el maní hasta formar una pasta y servir con manzana cortada.",
+        "pasos": "Procesar el maní en un procesador o licuadora potente hasta obtener una pasta. Raspar los bordes y seguir procesando si hace falta. Lavar la manzana, quitarle el centro y cortarla en gajos. Servir los gajos con la mantequilla de maní.",
         "tiempo_preparacion": 15,
         "dificultad": NivelDificultad.INTERMEDIO,
         "tipos_comida": [TipoComida.DESAYUNO, TipoComida.MERIENDA],
@@ -125,7 +127,7 @@ RECETAS_INICIALES = [
     },
     {
         "nombre": "Omelette de queso",
-        "pasos": "Batir los huevos, agregar queso y cocinar de ambos lados.",
+        "pasos": "Cortar el queso en cubos chicos o rallarlo. Batir los huevos con una pizca de sal. Calentar una sartén antiadherente a fuego medio. Verter los huevos y dejar cuajar 1 minuto. Agregar el queso sobre una mitad y doblar el omelette. Cocinar 2 minutos más de cada lado.",
         "tiempo_preparacion": 12,
         "dificultad": NivelDificultad.PRINCIPIANTE,
         "tipos_comida": [TipoComida.DESAYUNO, TipoComida.MERIENDA],
@@ -136,7 +138,7 @@ RECETAS_INICIALES = [
     },
     {
         "nombre": "Ensalada de lentejas",
-        "pasos": "Cocinar las lentejas y mezclarlas con tomate y zanahoria.",
+        "pasos": "Enjuagar las lentejas. Hervirlas en agua 20 a 25 minutos hasta que estén tiernas y escurrirlas. Dejarlas enfriar. Cortar el tomate en cubos y rallar la zanahoria. Mezclar todo en un bowl y servir.",
         "tiempo_preparacion": 30,
         "dificultad": NivelDificultad.PRINCIPIANTE,
         "tipos_comida": [TipoComida.ALMUERZO, TipoComida.CENA],
@@ -148,7 +150,7 @@ RECETAS_INICIALES = [
     },
     {
         "nombre": "Pollo con espinaca",
-        "pasos": "Cocinar el pollo y acompañar con espinaca salteada.",
+        "pasos": "Cortar el pollo en trozos y salarlo. Calentar la mitad del aceite de oliva en una sartén a fuego medio. Cocinar el pollo 8 a 10 minutos, dándolo vuelta, hasta que no quede rosado por dentro. Reservar el pollo. En la misma sartén calentar el resto del aceite y saltear la espinaca lavada 2 a 3 minutos. Servir el pollo junto con la espinaca.",
         "tiempo_preparacion": 30,
         "dificultad": NivelDificultad.INTERMEDIO,
         "tipos_comida": [TipoComida.ALMUERZO, TipoComida.CENA],
@@ -160,7 +162,7 @@ RECETAS_INICIALES = [
     },
     {
         "nombre": "Arroz con lentejas",
-        "pasos": "Cocinar el arroz y las lentejas por separado y mezclarlos.",
+        "pasos": "Enjuagar las lentejas y hervirlas en agua 20 a 25 minutos hasta que estén tiernas. Hervir el arroz aparte en agua con una pizca de sal unos 15 minutos. Escurrir ambos ingredientes. Mezclarlos en un bowl y servir caliente.",
         "tiempo_preparacion": 35,
         "dificultad": NivelDificultad.PRINCIPIANTE,
         "tipos_comida": [TipoComida.ALMUERZO, TipoComida.CENA],
@@ -171,7 +173,7 @@ RECETAS_INICIALES = [
     },
     {
         "nombre": "Ensalada de atun y garbanzos",
-        "pasos": "Mezclar los garbanzos cocidos con atun y tomate.",
+        "pasos": "Escurrir los garbanzos cocidos y enjuagarlos. Escurrir el atún. Lavar el tomate y cortarlo en cubos. Mezclar los garbanzos, el atún y el tomate en un bowl. Servir.",
         "tiempo_preparacion": 15,
         "dificultad": NivelDificultad.PRINCIPIANTE,
         "tipos_comida": [TipoComida.ALMUERZO, TipoComida.CENA],
@@ -183,7 +185,7 @@ RECETAS_INICIALES = [
     },
     {
         "nombre": "Carne con zanahorias",
-        "pasos": "Cocinar la carne a la plancha y acompañar con zanahorias cocidas.",
+        "pasos": "Pelar las zanahorias, cortarlas en rodajas y hervirlas 10 a 12 minutos hasta que estén tiernas. Salar la carne. Calentar el aceite de oliva en una plancha o sartén a fuego medio-alto. Cocinar la carne 4 a 5 minutos de cada lado hasta que esté bien cocida. Dejar reposar la carne 2 minutos. Servir con las zanahorias.",
         "tiempo_preparacion": 30,
         "dificultad": NivelDificultad.INTERMEDIO,
         "tipos_comida": [TipoComida.ALMUERZO, TipoComida.CENA],
@@ -195,7 +197,7 @@ RECETAS_INICIALES = [
     },
     {
         "nombre": "Merluza con espinaca",
-        "pasos": "Cocinar la merluza al horno y acompañar con espinaca salteada.",
+        "pasos": "Precalentar el horno a 200 grados. Colocar la merluza en una fuente, salarla y rociarla con la mitad del aceite de oliva. Hornear 15 a 20 minutos hasta que se desarme fácilmente con el tenedor. Mientras tanto, calentar el resto del aceite en una sartén y saltear la espinaca lavada 2 a 3 minutos. Servir la merluza con la espinaca.",
         "tiempo_preparacion": 30,
         "dificultad": NivelDificultad.INTERMEDIO,
         "tipos_comida": [TipoComida.ALMUERZO, TipoComida.CENA],
@@ -207,7 +209,7 @@ RECETAS_INICIALES = [
     },
     {
         "nombre": "Tortilla de espinaca",
-        "pasos": "Mezclar huevos con espinaca y cocinar en una sartén.",
+        "pasos": "Lavar la espinaca y picarla. Batir los huevos con una pizca de sal y mezclarlos con la espinaca. Calentar una sartén antiadherente a fuego medio. Verter la mezcla y cocinar 4 a 5 minutos hasta que los bordes cuajen. Dar vuelta la tortilla con ayuda de un plato. Cocinar 3 minutos más del otro lado.",
         "tiempo_preparacion": 20,
         "dificultad": NivelDificultad.PRINCIPIANTE,
         "tipos_comida": [TipoComida.ALMUERZO, TipoComida.CENA],
@@ -218,7 +220,7 @@ RECETAS_INICIALES = [
     },
     {
         "nombre": "Ensalada de arroz y atun",
-        "pasos": "Cocinar el arroz, dejar enfriar y mezclar con atun y tomate.",
+        "pasos": "Hervir el arroz en agua con una pizca de sal unos 15 minutos y escurrirlo. Dejarlo enfriar por completo. Escurrir el atún y cortar el tomate en cubos. Mezclar el arroz con el atún y el tomate. Servir frío.",
         "tiempo_preparacion": 25,
         "dificultad": NivelDificultad.PRINCIPIANTE,
         "tipos_comida": [TipoComida.ALMUERZO, TipoComida.CENA],
@@ -230,7 +232,7 @@ RECETAS_INICIALES = [
     },
     {
         "nombre": "Manzana con queso y almendras",
-        "pasos": "Cortar la manzana y el queso y acompañar con almendras.",
+        "pasos": "Lavar la manzana, quitarle el centro y cortarla en gajos. Cortar el queso en cubos o láminas. Servir todo en un plato y acompañar con las almendras.",
         "tiempo_preparacion": 5,
         "dificultad": NivelDificultad.PRINCIPIANTE,
         "tipos_comida": [TipoComida.MERIENDA],
@@ -242,7 +244,7 @@ RECETAS_INICIALES = [
     },
     {
         "nombre": "Licuado de banana y avena",
-        "pasos": "Licuar la banana con leche y avena hasta obtener una mezcla homogénea.",
+        "pasos": "Pelar la banana y cortarla en trozos. Colocar en la licuadora la banana, la leche y la avena. Licuar 30 segundos hasta que la mezcla quede homogénea. Servir de inmediato.",
         "tiempo_preparacion": 5,
         "dificultad": NivelDificultad.PRINCIPIANTE,
         "tipos_comida": [TipoComida.DESAYUNO, TipoComida.MERIENDA],
@@ -254,7 +256,7 @@ RECETAS_INICIALES = [
     },
     {
         "nombre": "Avena con almendras y banana",
-        "pasos": "Cocinar la avena con leche durante unos minutos. Agregar banana en rodajas y almendras picadas.",
+        "pasos": "Calentar la leche en una olla a fuego medio. Agregar la avena y revolver 3 a 5 minutos hasta que espese. Pelar la banana y cortarla en rodajas. Picar las almendras. Servir la avena y decorar con la banana y las almendras.",
         "tiempo_preparacion": 12,
         "dificultad": NivelDificultad.PRINCIPIANTE,
         "tipos_comida": [TipoComida.DESAYUNO, TipoComida.MERIENDA],
@@ -267,7 +269,7 @@ RECETAS_INICIALES = [
     },
     {
         "nombre": "Licuado de manzana y avena",
-        "pasos": "Lavar y cortar la manzana. Licuarla con leche y avena hasta obtener una preparación homogénea.",
+        "pasos": "Lavar la manzana, quitarle el centro y cortarla en trozos. Colocar en la licuadora la manzana, la leche y la avena. Licuar 30 segundos hasta que la mezcla quede homogénea. Servir de inmediato.",
         "tiempo_preparacion": 7,
         "dificultad": NivelDificultad.PRINCIPIANTE,
         "tipos_comida": [TipoComida.DESAYUNO, TipoComida.MERIENDA],
@@ -279,7 +281,7 @@ RECETAS_INICIALES = [
     },
     {
         "nombre": "Ensalada de frutas con mani",
-        "pasos": "Cortar la banana y la manzana en cubos. Agregar mani picado y mezclar.",
+        "pasos": "Pelar la banana y cortarla en rodajas. Lavar la manzana, quitarle el centro y cortarla en cubos. Picar el maní. Mezclar las frutas en un bowl y espolvorear el maní por encima.",
         "tiempo_preparacion": 10,
         "dificultad": NivelDificultad.PRINCIPIANTE,
         "tipos_comida": [TipoComida.DESAYUNO, TipoComida.MERIENDA],
@@ -291,7 +293,7 @@ RECETAS_INICIALES = [
     },
     {
         "nombre": "Bolitas de avena y mani",
-        "pasos": "Procesar el mani hasta formar una pasta. Mezclar con avena y banana pisada. Formar bolitas y refrigerar.",
+        "pasos": "Procesar el maní hasta obtener una pasta. Pisar la banana con un tenedor hasta formar un puré. Mezclar la pasta de maní, la banana y la avena en un bowl. Formar bolitas del tamaño de una nuez con las manos. Refrigerar 15 minutos antes de servir.",
         "tiempo_preparacion": 20,
         "dificultad": NivelDificultad.PRINCIPIANTE,
         "tipos_comida": [TipoComida.MERIENDA],
@@ -303,7 +305,7 @@ RECETAS_INICIALES = [
     },
     {
         "nombre": "Arroz con carne y tomate",
-        "pasos": "Cocinar el arroz. Cortar la carne en tiras y cocinarla completamente con aceite de oliva. Agregar tomate picado y servir con el arroz.",
+        "pasos": "Hervir el arroz en agua con una pizca de sal unos 15 minutos y escurrirlo. Cortar la carne en tiras finas y salarla. Calentar el aceite de oliva en una sartén a fuego medio-alto. Cocinar la carne 6 a 8 minutos hasta que no quede rosada. Agregar el tomate picado y cocinar 3 minutos más. Servir la carne con el arroz.",
         "tiempo_preparacion": 35,
         "dificultad": NivelDificultad.INTERMEDIO,
         "tipos_comida": [TipoComida.ALMUERZO, TipoComida.CENA],
@@ -316,7 +318,7 @@ RECETAS_INICIALES = [
     },
     {
         "nombre": "Guiso de garbanzos y espinaca",
-        "pasos": "Cocinar los garbanzos previamente remojados hasta que estén tiernos. Incorporar tomate, zanahoria y espinaca. Cocinar hasta integrar los ingredientes.",
+        "pasos": "Remojar los garbanzos desde la noche anterior. Hervirlos en una olla con agua 40 a 45 minutos hasta que estén tiernos. Cortar el tomate y la zanahoria en cubos. Agregar el tomate y la zanahoria a la olla y cocinar 10 minutos. Incorporar la espinaca lavada y cocinar 3 minutos más. Servir caliente.",
         "tiempo_preparacion": 60,
         "dificultad": NivelDificultad.INTERMEDIO,
         "tipos_comida": [TipoComida.ALMUERZO, TipoComida.CENA],
@@ -329,7 +331,7 @@ RECETAS_INICIALES = [
     },
     {
         "nombre": "Pollo con arroz y zanahoria",
-        "pasos": "Cocinar el arroz y las zanahorias. Cocinar completamente el pollo en una sartén con aceite de oliva y servir junto con las guarniciones.",
+        "pasos": "Hervir el arroz en agua con una pizca de sal unos 15 minutos y escurrirlo. Pelar la zanahoria, cortarla en rodajas y hervirla 10 minutos. Cortar el pollo en trozos y salarlo. Calentar el aceite de oliva en una sartén a fuego medio. Cocinar el pollo 8 a 10 minutos, dándolo vuelta, hasta que no quede rosado por dentro. Servir el pollo con el arroz y la zanahoria.",
         "tiempo_preparacion": 40,
         "dificultad": NivelDificultad.INTERMEDIO,
         "tipos_comida": [TipoComida.ALMUERZO, TipoComida.CENA],
@@ -342,7 +344,7 @@ RECETAS_INICIALES = [
     },
     {
         "nombre": "Hamburguesas de lentejas",
-        "pasos": "Cocinar las lentejas hasta que estén tiernas. Pisarlas y mezclarlas con zanahoria rallada y huevo. Formar hamburguesas y cocinarlas completamente de ambos lados.",
+        "pasos": "Enjuagar las lentejas y hervirlas 20 a 25 minutos hasta que estén bien tiernas. Escurrirlas y pisarlas con un tenedor. Rallar la zanahoria. Mezclar las lentejas con la zanahoria y el huevo hasta formar una masa firme. Formar hamburguesas con las manos. Calentar el aceite en una sartén a fuego medio. Cocinar las hamburguesas 4 a 5 minutos de cada lado hasta que estén doradas.",
         "tiempo_preparacion": 45,
         "dificultad": NivelDificultad.INTERMEDIO,
         "tipos_comida": [TipoComida.ALMUERZO, TipoComida.CENA],
@@ -355,7 +357,7 @@ RECETAS_INICIALES = [
     },
     {
         "nombre": "Ensalada de camarones y tomate",
-        "pasos": "Cocinar completamente los camarones y dejarlos enfriar. Cortar el tomate, mezclar con los camarones y condimentar con aceite de oliva.",
+        "pasos": "Hervir los camarones en agua con sal 3 a 4 minutos hasta que estén rosados y bien cocidos. Escurrirlos y dejarlos enfriar. Lavar los tomates y cortarlos en cubos. Mezclar los camarones con el tomate. Condimentar con el aceite de oliva y servir.",
         "tiempo_preparacion": 20,
         "dificultad": NivelDificultad.INTERMEDIO,
         "tipos_comida": [TipoComida.ALMUERZO, TipoComida.CENA],
@@ -367,7 +369,7 @@ RECETAS_INICIALES = [
     },
     {
         "nombre": "Revuelto de espinaca y queso",
-        "pasos": "Lavar y saltear la espinaca. Incorporar los huevos batidos y el queso. Cocinar hasta que el huevo esté completamente cuajado.",
+        "pasos": "Lavar la espinaca y picarla. Cortar el queso en cubos chicos. Calentar el aceite de oliva en una sartén a fuego medio. Saltear la espinaca 2 minutos. Agregar los huevos batidos y el queso. Revolver 3 a 4 minutos hasta que el huevo esté bien cuajado.",
         "tiempo_preparacion": 15,
         "dificultad": NivelDificultad.PRINCIPIANTE,
         "tipos_comida": [TipoComida.DESAYUNO, TipoComida.CENA],
@@ -378,9 +380,9 @@ RECETAS_INICIALES = [
             ("Aceite de oliva", 5, "ml"),
         ],
     },
-        {
+    {
         "nombre": "Yogur con frutillas y avena",
-        "pasos": "Lavar y cortar las frutillas. Servir el yogur con avena y las frutas.",
+        "pasos": "Lavar las frutillas, quitarles el cabo y cortarlas en rodajas. Servir el yogur en un bowl. Agregar la avena y mezclar. Colocar las frutillas por encima.",
         "tiempo_preparacion": 5,
         "dificultad": NivelDificultad.PRINCIPIANTE,
         "tipos_comida": [TipoComida.DESAYUNO, TipoComida.MERIENDA],
@@ -392,7 +394,7 @@ RECETAS_INICIALES = [
     },
     {
         "nombre": "Ensalada de pera y naranja",
-        "pasos": "Lavar, pelar y cortar las frutas. Mezclar y servir.",
+        "pasos": "Lavar la pera, quitarle el centro y cortarla en cubos. Pelar la naranja y cortarla en trozos. Mezclar las frutas en un bowl. Servir de inmediato.",
         "tiempo_preparacion": 10,
         "dificultad": NivelDificultad.PRINCIPIANTE,
         "tipos_comida": [TipoComida.DESAYUNO, TipoComida.MERIENDA],
@@ -403,7 +405,7 @@ RECETAS_INICIALES = [
     },
     {
         "nombre": "Licuado de frutillas y banana",
-        "pasos": "Lavar las frutillas y licuarlas junto con la banana y la leche.",
+        "pasos": "Lavar las frutillas y quitarles el cabo. Pelar la banana y cortarla en trozos. Colocar en la licuadora las frutillas, la banana y la leche. Licuar 30 segundos hasta que quede homogéneo. Servir de inmediato.",
         "tiempo_preparacion": 5,
         "dificultad": NivelDificultad.PRINCIPIANTE,
         "tipos_comida": [TipoComida.DESAYUNO, TipoComida.MERIENDA],
@@ -415,7 +417,7 @@ RECETAS_INICIALES = [
     },
     {
         "nombre": "Yogur con pera y almendras",
-        "pasos": "Cortar la pera y mezclarla con el yogur y las almendras picadas.",
+        "pasos": "Lavar la pera, quitarle el centro y cortarla en cubos. Picar las almendras. Servir el yogur en un bowl. Agregar la pera y espolvorear las almendras por encima.",
         "tiempo_preparacion": 5,
         "dificultad": NivelDificultad.PRINCIPIANTE,
         "tipos_comida": [TipoComida.DESAYUNO, TipoComida.MERIENDA],
@@ -427,7 +429,7 @@ RECETAS_INICIALES = [
     },
     {
         "nombre": "Polenta con queso",
-        "pasos": "Hervir agua y agregar lentamente la harina de maíz mientras se mezcla. Cocinar según las indicaciones del producto y agregar queso.",
+        "pasos": "Hervir agua con una pizca de sal en una olla. Bajar el fuego y agregar la harina de maíz en forma de lluvia, revolviendo sin parar para evitar grumos. Cocinar según las indicaciones del paquete, revolviendo seguido, hasta que espese. Rallar o cortar el queso en cubos. Agregar el queso, mezclar hasta que se derrita y servir caliente.",
         "tiempo_preparacion": 20,
         "dificultad": NivelDificultad.PRINCIPIANTE,
         "tipos_comida": [TipoComida.ALMUERZO, TipoComida.CENA],
@@ -438,7 +440,7 @@ RECETAS_INICIALES = [
     },
     {
         "nombre": "Pollo al horno con batata",
-        "pasos": "Cortar la batata en trozos y colocarla en una fuente junto con el pollo. Agregar aceite de oliva y cocinar en horno precalentado hasta que ambos estén completamente cocidos.",
+        "pasos": "Precalentar el horno a 200 grados. Lavar la batata y cortarla en trozos medianos. Colocar la batata y el pollo en una fuente. Salar y rociar con el aceite de oliva. Hornear 35 a 40 minutos, dando vuelta todo a mitad de cocción. Verificar que el pollo no quede rosado por dentro y que la batata esté tierna.",
         "tiempo_preparacion": 50,
         "dificultad": NivelDificultad.INTERMEDIO,
         "tipos_comida": [TipoComida.ALMUERZO, TipoComida.CENA],
@@ -450,7 +452,7 @@ RECETAS_INICIALES = [
     },
     {
         "nombre": "Ensalada de quinoa y verduras",
-        "pasos": "Lavar y cocinar la quinoa. Cocinar el brócoli y mezclarlo con tomate, zanahoria y quinoa.",
+        "pasos": "Enjuagar la quinoa con agua fría en un colador. Hervirla en el doble de agua unos 12 a 15 minutos hasta que absorba el agua y escurrirla. Cortar el brócoli en ramitos y hervirlo 4 minutos. Cortar el tomate en cubos y rallar la zanahoria. Mezclar todo en un bowl y servir.",
         "tiempo_preparacion": 30,
         "dificultad": NivelDificultad.PRINCIPIANTE,
         "tipos_comida": [TipoComida.ALMUERZO, TipoComida.CENA],
@@ -463,7 +465,7 @@ RECETAS_INICIALES = [
     },
     {
         "nombre": "Tortilla de papa y cebolla",
-        "pasos": "Cortar y cocinar la papa y la cebolla. Mezclar con los huevos batidos y cocinar la tortilla de ambos lados hasta que esté completamente cuajada.",
+        "pasos": "Pelar la papa y cortarla en rodajas finas. Cortar la cebolla en tiras finas. Calentar el aceite en una sartén a fuego medio y cocinar la papa y la cebolla 12 a 15 minutos hasta que estén tiernas. Batir los huevos con una pizca de sal y mezclarlos con la papa y la cebolla. Cocinar la mezcla en la sartén 4 a 5 minutos. Dar vuelta la tortilla con ayuda de un plato y cocinar 4 minutos más.",
         "tiempo_preparacion": 35,
         "dificultad": NivelDificultad.INTERMEDIO,
         "tipos_comida": [TipoComida.ALMUERZO, TipoComida.CENA],
@@ -476,7 +478,7 @@ RECETAS_INICIALES = [
     },
     {
         "nombre": "Pure de zapallo con pollo",
-        "pasos": "Hervir el zapallo hasta que esté tierno y pisarlo. Cocinar completamente el pollo a la plancha y servir con el puré.",
+        "pasos": "Pelar el zapallo y cortarlo en cubos. Hervirlo 15 a 20 minutos hasta que esté tierno y escurrirlo. Pisarlo con un tenedor hasta formar un puré. Salar el pollo. Calentar el aceite en una plancha o sartén a fuego medio. Cocinar el pollo 6 a 8 minutos de cada lado hasta que no quede rosado por dentro. Servir el pollo con el puré.",
         "tiempo_preparacion": 35,
         "dificultad": NivelDificultad.PRINCIPIANTE,
         "tipos_comida": [TipoComida.ALMUERZO, TipoComida.CENA],
@@ -488,7 +490,7 @@ RECETAS_INICIALES = [
     },
     {
         "nombre": "Merluza con papas y brocoli",
-        "pasos": "Cocinar la merluza al horno hasta que esté completamente cocida. Hervir las papas y el brócoli y servir como guarnición.",
+        "pasos": "Precalentar el horno a 200 grados. Pelar las papas, cortarlas en trozos y hervirlas 15 minutos. Cortar el brócoli en ramitos y hervirlo 4 minutos. Colocar la merluza en una fuente, salarla y rociarla con el aceite de oliva. Hornear 15 a 20 minutos hasta que se desarme fácilmente con el tenedor. Servir la merluza con las papas y el brócoli.",
         "tiempo_preparacion": 40,
         "dificultad": NivelDificultad.INTERMEDIO,
         "tipos_comida": [TipoComida.ALMUERZO, TipoComida.CENA],
@@ -502,7 +504,7 @@ RECETAS_INICIALES = [
 
     {
         "nombre": "Compota de manzana y pera",
-        "pasos": "Pelar y cortar las frutas. Cocinarlas con un poco de agua hasta que estén tiernas y pisarlas hasta obtener una compota.",
+        "pasos": "Pelar la manzana y la pera, quitarles el centro y cortarlas en cubos. Colocarlas en una olla con un chorrito de agua. Cocinar a fuego bajo 12 a 15 minutos hasta que estén tiernas. Pisarlas con un tenedor hasta obtener una compota. Dejar entibiar antes de servir.",
         "tiempo_preparacion": 20,
         "dificultad": NivelDificultad.PRINCIPIANTE,
         "tipos_comida": [TipoComida.DESAYUNO, TipoComida.MERIENDA],
@@ -513,7 +515,7 @@ RECETAS_INICIALES = [
     },
     {
         "nombre": "Ensalada de naranja y frutillas",
-        "pasos": "Pelar la naranja y cortarla en trozos. Lavar y cortar las frutillas. Mezclar y servir.",
+        "pasos": "Pelar la naranja y cortarla en trozos. Lavar las frutillas, quitarles el cabo y cortarlas en rodajas. Mezclar las frutas en un bowl. Servir de inmediato.",
         "tiempo_preparacion": 10,
         "dificultad": NivelDificultad.PRINCIPIANTE,
         "tipos_comida": [TipoComida.DESAYUNO, TipoComida.MERIENDA],
@@ -524,7 +526,7 @@ RECETAS_INICIALES = [
     },
     {
         "nombre": "Quinoa dulce con banana",
-        "pasos": "Lavar y cocinar la quinoa en agua hasta que esté tierna. Dejar entibiar y agregar banana pisada.",
+        "pasos": "Enjuagar la quinoa con agua fría en un colador. Hervirla en el doble de agua unos 12 a 15 minutos hasta que absorba el agua. Dejarla entibiar. Pisar la banana con un tenedor y mezclarla con la quinoa. Servir.",
         "tiempo_preparacion": 25,
         "dificultad": NivelDificultad.PRINCIPIANTE,
         "tipos_comida": [TipoComida.DESAYUNO, TipoComida.MERIENDA],
@@ -535,7 +537,7 @@ RECETAS_INICIALES = [
     },
     {
         "nombre": "Yogur con banana y frutillas",
-        "pasos": "Cortar la banana y las frutillas. Mezclarlas con el yogur natural y servir.",
+        "pasos": "Pelar la banana y cortarla en rodajas. Lavar las frutillas, quitarles el cabo y cortarlas en rodajas. Servir el yogur en un bowl. Agregar la banana y las frutillas por encima.",
         "tiempo_preparacion": 5,
         "dificultad": NivelDificultad.PRINCIPIANTE,
         "tipos_comida": [TipoComida.DESAYUNO, TipoComida.MERIENDA],
@@ -547,7 +549,7 @@ RECETAS_INICIALES = [
     },
     {
         "nombre": "Porridge de avena y pera",
-        "pasos": "Cocinar la avena con leche hasta obtener una textura cremosa. Agregar la pera cortada en cubos.",
+        "pasos": "Lavar la pera, quitarle el centro y cortarla en cubos. Calentar la leche en una olla a fuego medio. Agregar la avena y revolver 5 minutos hasta obtener una textura cremosa. Incorporar la pera y cocinar 1 minuto más. Servir caliente.",
         "tiempo_preparacion": 12,
         "dificultad": NivelDificultad.PRINCIPIANTE,
         "tipos_comida": [TipoComida.DESAYUNO, TipoComida.MERIENDA],
@@ -559,7 +561,7 @@ RECETAS_INICIALES = [
     },
     {
         "nombre": "Manzana asada con avena",
-        "pasos": "Cortar la manzana en mitades y retirar las semillas. Agregar avena por encima y hornear hasta que la fruta esté tierna.",
+        "pasos": "Precalentar el horno a 180 grados. Lavar la manzana, cortarla por la mitad y retirar el centro. Colocar las mitades en una fuente con el corte hacia arriba. Cubrir con la avena. Hornear 20 minutos hasta que la manzana esté tierna.",
         "tiempo_preparacion": 25,
         "dificultad": NivelDificultad.PRINCIPIANTE,
         "tipos_comida": [TipoComida.DESAYUNO, TipoComida.MERIENDA],
@@ -570,7 +572,7 @@ RECETAS_INICIALES = [
     },
     {
         "nombre": "Crema de zapallo y zanahoria",
-        "pasos": "Cortar el zapallo, la zanahoria y la cebolla. Hervir hasta que estén tiernos y procesar hasta obtener una crema homogénea.",
+        "pasos": "Pelar el zapallo, las zanahorias y la cebolla. Cortarlos en trozos medianos. Hervirlos en agua con una pizca de sal 20 minutos hasta que estén tiernos. Reservar un poco del agua de cocción y escurrir el resto. Procesar las verduras con un poco del agua reservada hasta obtener una crema. Servir caliente.",
         "tiempo_preparacion": 35,
         "dificultad": NivelDificultad.PRINCIPIANTE,
         "tipos_comida": [TipoComida.ALMUERZO, TipoComida.CENA],
@@ -582,7 +584,7 @@ RECETAS_INICIALES = [
     },
     {
         "nombre": "Ensalada de quinoa y garbanzos",
-        "pasos": "Cocinar la quinoa y los garbanzos hasta que estén tiernos. Mezclar con tomate y aceite de oliva.",
+        "pasos": "Enjuagar la quinoa y hervirla en el doble de agua unos 12 a 15 minutos. Si los garbanzos son secos, remojarlos desde la noche anterior y hervirlos hasta que estén tiernos. Si son de lata, escurrirlos y enjuagarlos. Cortar el tomate en cubos. Mezclar la quinoa, los garbanzos y el tomate. Condimentar con el aceite de oliva y servir.",
         "tiempo_preparacion": 35,
         "dificultad": NivelDificultad.PRINCIPIANTE,
         "tipos_comida": [TipoComida.ALMUERZO, TipoComida.CENA],
@@ -595,7 +597,7 @@ RECETAS_INICIALES = [
     },
     {
         "nombre": "Batata rellena de lentejas",
-        "pasos": "Hornear la batata hasta que esté tierna. Cocinar las lentejas y mezclarlas con cebolla salteada. Abrir la batata y rellenar.",
+        "pasos": "Precalentar el horno a 200 grados. Lavar la batata, pincharla con un tenedor y hornearla 35 a 40 minutos hasta que esté tierna. Mientras tanto, hervir las lentejas 20 a 25 minutos y escurrirlas. Picar la cebolla y saltearla en el aceite de oliva 5 minutos. Mezclar las lentejas con la cebolla. Abrir la batata al medio y rellenarla con la mezcla.",
         "tiempo_preparacion": 50,
         "dificultad": NivelDificultad.INTERMEDIO,
         "tipos_comida": [TipoComida.ALMUERZO, TipoComida.CENA],
@@ -608,7 +610,7 @@ RECETAS_INICIALES = [
     },
     {
         "nombre": "Salteado de pollo con brocoli y quinoa",
-        "pasos": "Cocinar la quinoa y el brócoli. Cortar el pollo en trozos y cocinarlo completamente con aceite de oliva y ajo. Incorporar las verduras y servir con la quinoa.",
+        "pasos": "Enjuagar la quinoa y hervirla en el doble de agua unos 12 a 15 minutos. Cortar el brócoli en ramitos y hervirlo 4 minutos. Cortar el pollo en trozos chicos y picar el ajo. Calentar el aceite de oliva en una sartén a fuego medio-alto. Cocinar el pollo con el ajo 8 a 10 minutos hasta que no quede rosado por dentro. Agregar el brócoli y saltear 2 minutos. Servir sobre la quinoa.",
         "tiempo_preparacion": 40,
         "dificultad": NivelDificultad.INTERMEDIO,
         "tipos_comida": [TipoComida.ALMUERZO, TipoComida.CENA],
@@ -639,10 +641,13 @@ def main():
                 select(Receta).where(Receta.nombre == datos["nombre"])
             )
 
-            # Si ya existe, completar porciones_base solo si falta.
+            # Si ya existe, completar porciones_base solo si falta
+            # y actualizar los pasos si cambiaron.
             if receta_existente is not None:
                 if receta_existente.porciones_base is None:
                     receta_existente.porciones_base = datos.get("porciones_base", 1)
+                if receta_existente.pasos != datos["pasos"]:
+                    receta_existente.pasos = datos["pasos"]
                 continue
 
             for nombre, _, _ in datos["ingredientes"]:
